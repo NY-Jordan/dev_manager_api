@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'picture'
     ];
 
     /**
@@ -42,4 +44,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function getToken(): NewAccessToken
+    {
+        if ($this->email_verified_at) {
+            return $this->createToken("API TOKEN", ['*']);
+        }
+        return $this->createToken("API TOKEN", ['limited']);
+    }
+
+    public static function findByEmail($email){
+        return User::where('email', $email)->first();
+    }
 }

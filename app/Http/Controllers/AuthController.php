@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EmailVerificationEvent;
+use App\Events\Register;
+use App\Events\RegisterEvent;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserTokenResource;
+use App\Jobs\EmailVerificationJob;
 use App\Service\AuthService;
 
 class AuthController extends Controller
@@ -32,8 +36,7 @@ class AuthController extends Controller
             $request->picture,
             $request->password, 
         );
-        
-        
+        event(new RegisterEvent($user));
         return UserTokenResource::make($user);
         
     }

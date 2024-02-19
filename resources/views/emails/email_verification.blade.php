@@ -351,7 +351,7 @@ ul.social li{
             			<div class="text" style="padding: 0 2.5em; text-align: center;">
             				<h2>Changer votre mot de passe</h2>
 							   
-            				<p><a href="" class="btn btn-primary">Cliquez ici</a></p>
+            				<p>{{ $otp->code }}</p>
             			</div>
             		</td>
             	</tr>

@@ -3,6 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -53,7 +56,11 @@ class User extends Authenticatable
         return $this->createToken("API TOKEN", ['limited']);
     }
 
-    public static function findByEmail($email){
+    public static function findByEmail($email) : User|null {
         return User::where('email', $email)->first();
+    }
+
+    public function setEmailVerifiedAt($date = null) : void {
+        $this->email_verified_at = $date ? $date : Carbon::now();
     }
 }

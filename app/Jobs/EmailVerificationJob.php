@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Enums\OtpEnums;
+use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,7 +31,8 @@ class EmailVerificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Mail::send('emails.email_verification',[], function($message) {
+        $otp = (new Otp())->createOtpEmailsValidation($this->user->id);
+        Mail::send('emails.email_verification',['otp' => $otp], function($message) {
             $message->to($this->user->email, "DevHandle")
                     ->from('devhandle@contact.net')
                     ->subject("Email Verification");    

@@ -60,6 +60,10 @@ class User extends Authenticatable
         return User::where('email', $email)->first();
     }
 
+    public static function findByPasswordAndEmail($email, $password) : User|null {
+        return User::where('email', $email)->where('password', $password)->first();
+    }
+
     public function setEmailVerifiedAt($date = null) : void {
         $this->email_verified_at = $date ? $date : Carbon::now();
     }

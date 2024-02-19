@@ -7,6 +7,7 @@ use App\Events\EmailVerificationEvent;
 use App\Events\Register;
 use App\Events\RegisterEvent;
 use App\Http\Requests\EmailVerificationRequest;
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserTokenResource;
@@ -36,7 +37,7 @@ class AuthController extends Controller
     * @param  [string] picture
     * @return [string] message
     */
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request) : UserTokenResource
     {
         $user  = $this->authService->register(
             $request->name, 
@@ -49,19 +50,31 @@ class AuthController extends Controller
         
     }
 
-    function login() {
-        return;
+
+    /**
+    * login user
+    * @param  [string] password
+    * @param  [email] email
+    * @return [string] message
+    */
+    function login(LoginRequest $request)  : UserTokenResource {
+        $findUserCredentials = User::findByPasswordAndEmail($request->email, $request->password);
+        abort_if(!$findUserCredentials, 404, 'Bad Credentials');
+        return UserTokenResource::make($findUserCredentials);
     }
 
-
-    public  function email_verification(EmailVerificationRequest $request){
+    /**
+    * email user verifiation
+    * @param  [string] code
+    */
+    public  function email_verification(EmailVerificationRequest $request) : UserTokenResource{
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::EMAIL_VALIDATION);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
         abort_if(!$otpIsRight, 400, 'otp is not valid');
         $user = User::find(Auth::id());
         $user->setEmailVerifiedAt();
         $otp->setVerified();
-        return UserResource::make($user);
+        return UserTokenResource::make($user);
     }
 
 

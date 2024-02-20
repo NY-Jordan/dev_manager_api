@@ -36,7 +36,7 @@ class Otp extends Model
      *  @param  [User] user_id
      * @param  [int] expired_at
      */
-    public function createOtpEmailsValidation(User $user_id, $expired_at = 24) : Otp {
+    public function createOtpEmailsValidation($user_id, $expired_at = 24) : Otp {
 
         return $this->create([
             'type' => OtpEnums::EMAIL_VALIDATION,
@@ -46,13 +46,13 @@ class Otp extends Model
         ]);
     }
 
-    public static  function findByUserAndType(User $user_id, OtpEnums $type) : Otp {
+    public static  function findByUserAndType($user_id, OtpEnums $type) : Otp {
 
         return Otp::whereUserId($user_id)
             ->where('expired_at', '>', now())
             ->where('type', $type)->first();
     }
-    
+
     public function setVerified($bool = null) : void {
         $this->verified = $bool ? $bool : true;
     }

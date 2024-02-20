@@ -16,12 +16,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->middleware(['auth:sanctum']);;
     Route::post('register', [AuthController::class, 'register']);
+    Route::post('email/verification', [AuthController::class, 'email_verification'])
+    ->middleware(['auth:sanctum']);
     
-    Route::group(['middleware' => ['auth:sanctum', 'ability:limited']], function() {
-      Route::post('email/verification', [AuthController::class, 'email_verification']);
-    });
    
 
     Route::group(['middleware' => 'auth:sanctum'], function() {

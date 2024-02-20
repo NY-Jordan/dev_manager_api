@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AuthEnums;
 use App\Enums\OtpEnums;
 use App\Events\EmailVerificationEvent;
 use App\Events\Register;
@@ -59,9 +60,10 @@ class AuthController extends Controller
     */
     function login(LoginRequest $request)  : UserTokenResource {
         $findUserCredentials = User::findByPasswordAndEmail($request->email, $request->password);
-        abort_if(!$findUserCredentials, 404, 'Bad Credentials');
+        abort_if(!$findUserCredentials, 404, AuthEnums::BAD_CREDENTIALS);
         return UserTokenResource::make($findUserCredentials);
     }
+
 
     /**
     * email user verifiation
@@ -70,10 +72,12 @@ class AuthController extends Controller
     public  function email_verification(EmailVerificationRequest $request) : UserTokenResource{
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::EMAIL_VALIDATION);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
-        abort_if(!$otpIsRight, 400, 'otp is not valid');
+        abort_if(!$otpIsRight, 400, AuthEnums::OPT_INVALID);
         $user = User::find(Auth::id());
         $user->setEmailVerifiedAt();
         $otp->setVerified();
+        $user->save();
+        $otp->save();
         return UserTokenResource::make($user);
     }
 

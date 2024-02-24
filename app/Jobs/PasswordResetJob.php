@@ -6,13 +6,14 @@ use App\Enums\OtpEnums;
 use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class EmailVerificationJob implements ShouldQueue
+class PasswordResetJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -31,11 +32,11 @@ class EmailVerificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $otp = (new Otp())->createOtp($this->user->id, OtpEnums::EMAIL_VALIDATION);
-        Mail::send('emails.email_verification',['otp' => $otp, 'user' => $this->user], function($message) {
+        $otp = (new Otp())->createOtp($this->user->id, OtpEnums::RESET_PASSWORD);
+        Mail::send('emails.reset_password',['otp' => $otp, 'user' => $this->user], function($message) {
             $message->to($this->user->email, "DevHandle")
                     ->from('devhandle@contact.net')
-                    ->subject("Email Verification");    
+                    ->subject("Password Reset");    
         });
     }
 }

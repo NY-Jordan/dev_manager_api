@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Enums\AuthEnums;
 use App\Enums\OtpEnums;
@@ -11,8 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\UserResource;
-use App\Http\Resources\UserTokenResource;
+use App\Http\Resources\User\UserTokenResource;
 use App\Jobs\EmailVerificationJob;
 use App\Models\Otp;
 use App\Models\User;
@@ -71,17 +70,18 @@ class AuthController extends Controller
     * email user verifiation
     * @param  [string] code
     */
-    public  function email_verification(EmailVerificationRequest $request) : UserTokenResource{
+    public  function emailVerification(EmailVerificationRequest $request) : UserTokenResource{
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::EMAIL_VALIDATION);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
         abort_if(!$otpIsRight, 400, 'otp is not valid');
         $user = User::find(Auth::id());
         $user->setEmailVerifiedAt();
+        $user->setStatus(true);
         $otp->setVerified();
-        $user->save();
-        $otp->save();
+        $otp->setExpiredAt();
         return UserTokenResource::make($user);
     }
 
 
+    
 }

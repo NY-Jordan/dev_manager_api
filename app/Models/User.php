@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enums\TokenTypeEnums;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,10 +50,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function getToken(): NewAccessToken
+    public function getToken($type = null): NewAccessToken
     {
         if ($this->email_verified_at) {
             return $this->createToken("API TOKEN", ['*']);
+        }
+        if ($type === TokenTypeEnums::PASSWORD_RESET) {
+            return $this->createToken("API TOKEN", ['password_reset'], Carbon::now()->addMinutes(5));
         }
         return $this->createToken("API TOKEN", ['limited']);
     }
@@ -62,7 +66,7 @@ class User extends Authenticatable
     }
 
     public static function findByPasswordAndEmail($email, $password) : User|bool {
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $email)->where('status', true)->first();
         if(!$user || !Hash::check($password,$user->password)){
             return false;
         }
@@ -71,5 +75,15 @@ class User extends Authenticatable
 
     public function setEmailVerifiedAt($date = null) : void {
         $this->email_verified_at = $date ? $date : Carbon::now();
+        $this->save();
+    }
+    public function setStatus(bool $value){
+        $this->status = $value;
+        $this->save();
+    }
+
+    public function setPassword($password){
+        $this->password = Hash::make($password);
+        $this->save();
     }
 }

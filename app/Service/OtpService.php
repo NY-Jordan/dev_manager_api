@@ -21,4 +21,15 @@ class OtpService {
         }
         return false;
     }
+
+    function desactiveAllOtpWithTheSameType($type){
+
+        $otps = Otp::where('type', $type)->get();
+        foreach ($otps as $key => $otp) {
+            $otp->setVerified();
+            $otp->setExpiredAt();
+        }
+
+    }
 }
+

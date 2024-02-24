@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OtpEnums;
+use App\Service\OtpService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,10 +37,10 @@ class Otp extends Model
      *  @param  [User] user_id
      * @param  [int] expired_at
      */
-    public function createOtpEmailsValidation($user_id, $expired_at = 24) : Otp {
-
+    public function createOtp($user_id, $type, $expired_at = 24) : Otp {
+        (new OtpService)->desactiveAllOtpWithTheSameType($type);
         return $this->create([
-            'type' => OtpEnums::EMAIL_VALIDATION,
+            'type' => $type,
             'code' => $this->createOtpCode(),
             'user_id' => $user_id,
             'expired_at' => Carbon::now()->addHours($expired_at)
@@ -48,13 +49,21 @@ class Otp extends Model
 
     public static  function findByUserAndType($user_id, OtpEnums $type) : Otp|null {
 
+        
         return Otp::whereUserId($user_id)
             ->where('expired_at', '>', now())
-            ->where('type', $type)->first();
+            ->where('type', $type)
+            ->where('verified', null)
+            ->first();
     }
 
     public function setVerified($bool = null) : void {
         $this->verified = $bool ? $bool : true;
+        $this->save();
+    }
+    public function setExpiredAt($date = null) : void {
+        $this->expired_at = $date ? $date : Carbon::now();
+        $this->save();
     }
 
 

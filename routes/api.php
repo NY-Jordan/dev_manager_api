@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +19,12 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login'])->name('login');
     Route::post('register', [AuthController::class, 'register'])->name('register');
-    Route::post('email/verification', [AuthController::class, 'email_verification'])
+    Route::post('email/verification', [AuthController::class, 'emailVerification'])
     ->middleware(['auth:sanctum', 'ability:limited'])->name('email.verification');
+    Route::post('password/update', [ForgotPasswordController::class, 'updatePassword'])
+    ->middleware(['auth:sanctum', 'ability:password_reset'])
+    ->name('password.forgot');
+    Route::post('password/reset', [ForgotPasswordController::class, 'forgotPassword'])->name('password.reset');
 });
 
 Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {

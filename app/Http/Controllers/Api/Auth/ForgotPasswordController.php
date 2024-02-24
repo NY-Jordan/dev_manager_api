@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Enums\OtpEnums;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ForgotPasswordRequest;
-use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\UpdatePasswordRequest;
 use App\Http\Resources\ForgotPassword\ForgotPasswordRessource;
 use App\Http\Resources\ForgotPassword\PasswordResetRessource;
 use App\Jobs\PasswordResetJob;

@@ -9,6 +9,7 @@ use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 
@@ -60,8 +61,12 @@ class User extends Authenticatable
         return User::where('email', $email)->first();
     }
 
-    public static function findByPasswordAndEmail($email, $password) : User|null {
-        return User::where('email', $email)->where('password', $password)->first();
+    public static function findByPasswordAndEmail($email, $password) : User|bool {
+        $user = User::where('email', $email)->first();
+        if(!$user || !Hash::check($password,$user->password)){
+            return false;
+        }
+        return $user;
     }
 
     public function setEmailVerifiedAt($date = null) : void {

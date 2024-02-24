@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Enums\AuthEnums;
 use App\Enums\OtpEnums;
 use App\Events\EmailVerificationEvent;
 use App\Events\Register;
 use App\Events\RegisterEvent;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
@@ -58,9 +59,10 @@ class AuthController extends Controller
     * @param  [email] email
     * @return [string] message
     */
-    function login(LoginRequest $request)  : UserTokenResource {
+    public function login(LoginRequest $request)  : UserTokenResource {
         $findUserCredentials = User::findByPasswordAndEmail($request->email, $request->password);
-        abort_if(!$findUserCredentials, 404, AuthEnums::BAD_CREDENTIALS);
+        abort_if(!$findUserCredentials, 400, 'Bad Credentials');
+        abort_if(!$findUserCredentials->email_verified_at, 400, 'email not verified');
         return UserTokenResource::make($findUserCredentials);
     }
 
@@ -72,7 +74,7 @@ class AuthController extends Controller
     public  function email_verification(EmailVerificationRequest $request) : UserTokenResource{
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::EMAIL_VALIDATION);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
-        abort_if(!$otpIsRight, 400, AuthEnums::OPT_INVALID);
+        abort_if(!$otpIsRight, 400, 'otp is not valid');
         $user = User::find(Auth::id());
         $user->setEmailVerifiedAt();
         $otp->setVerified();

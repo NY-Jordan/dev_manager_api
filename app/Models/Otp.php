@@ -46,7 +46,7 @@ class Otp extends Model
         ]);
     }
 
-    public static  function findByUserAndType($user_id, OtpEnums $type) : Otp {
+    public static  function findByUserAndType($user_id, OtpEnums $type) : Otp|null {
 
         return Otp::whereUserId($user_id)
             ->where('expired_at', '>', now())

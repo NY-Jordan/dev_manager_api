@@ -32,7 +32,7 @@ class EmailVerificationJob implements ShouldQueue
     public function handle(): void
     {
         $otp = (new Otp())->createOtpEmailsValidation($this->user->id);
-        Mail::send('emails.email_verification',['otp' => $otp], function($message) {
+        Mail::send('emails.email_verification',['otp' => $otp, 'user' => $this->user], function($message) {
             $message->to($this->user->email, "DevHandle")
                     ->from('devhandle@contact.net')
                     ->subject("Email Verification");    

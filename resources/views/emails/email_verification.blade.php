@@ -332,26 +332,29 @@ ul.social li{
           	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
           		<tr>
           			<td class="logo" style="text-align: center;">
-			            <h1><a href="#">NY-Annonces</a></h1>
+			            <h1><a href="#">DevHandle</a></h1>
 			          </td>
           		</tr>
           	</table>
           </td>
 	      </tr><!-- end tr -->
 	      <tr>
-          <td valign="middle" class="hero bg_white" style="padding: 3em 0 2em 0;">
+          {{-- <td valign="middle" class="hero bg_white" style="padding: 3em 0 2em 0;">
             <img src="images/email.png" alt="" style="width: 300px; max-width: 600px; height: auto; margin: auto; display: block;">
-          </td>
+          </td> --}}
 	      </tr><!-- end tr -->
 				<tr>
           <td valign="middle" class="hero bg_white" style="padding: 2em 0 4em 0;">
             <table>
             	<tr>
             		<td>
-            			<div class="text" style="padding: 0 2.5em; text-align: center;">
-            				<h2>Changer votre mot de passe</h2>
-							   
-            				<p>{{ $otp->code }}</p>
+            			<div class="text" style="padding: 0 2.5em">
+							<p>Bonjour {{ $user->name }},</p>
+							Vous venez de créer un compte sur DevHandle. Avant de pouvoir utiliser votre compte, vous devez vérifier que cette adresse e-mail est bien la vôtre.
+							<p>Ci dessous votre code de verification</p>.
+            				<h1 class="mb-8" style="padding: 0 2.5em; text-align: center;">{{ $otp->code }}</h1>
+
+							<p>DevHandle Team</p>
             			</div>
             		</td>
             	</tr>

@@ -12,7 +12,7 @@ class OtpService {
     /**
      * verify if the opt code is right
      */
-    public function check(Otp $otp, $code)  {
+    public function check(Otp|null $otp, $code)  {
         if (!$otp || $otp->verified) {
           return false;
         }

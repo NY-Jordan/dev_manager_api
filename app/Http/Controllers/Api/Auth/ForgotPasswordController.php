@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Enums\OtpEnums;
+use App\Exceptions\HttpResponse_if;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\UpdatePasswordRequest;
@@ -33,9 +34,11 @@ class ForgotPasswordController extends Controller
         return PasswordResetRessource::make($user);
     }
 
+
     public function updatePassword(UpdatePasswordRequest $request){
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::RESET_PASSWORD);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
+
         abort_if(!$otpIsRight, 400, 'otp is not valid');
         $user = User::find(Auth::id());
         $user->setPassword($request->password);

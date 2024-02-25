@@ -12,7 +12,7 @@ class OtpService {
     /**
      * verify if the opt code is right
      */
-    public function check(Otp|null $otp, $code)  {
+    public function check(Otp|null $otp, $code) : bool {
         if (!$otp || $otp->verified) {
           return false;
         }
@@ -22,7 +22,7 @@ class OtpService {
         return false;
     }
 
-    function desactiveAllOtpWithTheSameType($type){
+    function desactiveAllOtpWithTheSameType($type) : void{
 
         $otps = Otp::where('type', $type)->get();
         foreach ($otps as $key => $otp) {

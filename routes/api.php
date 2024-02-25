@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\ProjectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +31,12 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
   Route::get('logout', [AuthController::class, 'logout']);
   Route::get('user', [AuthController::class, 'user']);
+
+  // project root
+  Route::group(['prefix' => 'project'], function () {
+    Route::get('/user/{id}/get', [ProjectController::class, 'getUserProjects'])->name('project.user');
+    Route::post('/create', [ProjectController::class, 'create'])->name('project.create');
+    Route::post('/update', [ProjectController::class, 'update'])->name('project.update');
+    Route::post('/delete', [ProjectController::class, 'delete'])->name('project.delete');;
+  });
 });

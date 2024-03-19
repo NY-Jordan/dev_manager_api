@@ -22,7 +22,10 @@ class Project extends Model
         'delivery_at'
     ];
 
-
+    public function projectInvitation($type = null){
+        $this->belongsTo(ProjectInvitaion::class);
+    }
+    
     public function getProjectOfUser($id = null, $user_id = null){
         $userId = $user_id ? $user_id : Auth::id();
         if(!$id){
@@ -31,11 +34,11 @@ class Project extends Model
         return $this->where('id', $id)->where('user_id', $userId)->get();
     }
 
-    public function createNewProject(string $name, $user_id = null,  DateTime $delevry_at = null){
+    public function createNewProject(string $name, $user_id = null,  DateTime $delivery_at = null){
         $project = $this->create([
             'name' => $name,
             'user_id' => $user_id ? $user_id : Auth::id(),
-            'delivery_at' => $delevry_at
+            'delevry_at' => $delivery_at
 
         ]);
         return $project;

@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Events\EmailVerificationEvent;
 use App\Events\Register;
 use App\Events\RegisterEvent;
+use App\Events\UserGuestInProject;
+use App\Listeners\HandleUserGuestInProject;
+use App\Listeners\SendEmailToUserGuestInProject;
 use App\Listeners\SendEmailVerification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -21,7 +24,10 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         RegisterEvent::class => [
             SendEmailVerification::class
-        ]
+        ],
+        UserGuestInProject::class => [
+            HandleUserGuestInProject::class
+        ],
     ];
 
     /**

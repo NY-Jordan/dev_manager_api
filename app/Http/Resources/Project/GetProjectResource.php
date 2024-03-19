@@ -16,8 +16,8 @@ class GetProjectResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'count' => $this->projects->count(),
-            'projects' => $this->projects,
+            'count' => $this->resource->count(),
+            'projects' => $this->resource,
             'status' => true
         ];
     }

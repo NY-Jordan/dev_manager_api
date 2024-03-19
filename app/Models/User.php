@@ -49,7 +49,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
+    public function projectInvitation($type = null){
+        $this->belongsTo(ProjectInvitaion::class);
+    }
     public function getToken($type = null): NewAccessToken
     {
         if ($this->email_verified_at) {

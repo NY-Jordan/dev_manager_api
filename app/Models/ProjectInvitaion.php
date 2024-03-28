@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
+use Emadadly\LaravelUuid\Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectInvitaion extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuids;
+    public $incrementing = false;
+
     protected $fillable = [
         'receiver',
         'sender',
-        'project_id'
+        'project_id',
+        'Uuid'
     ];
 
     public function project(){
@@ -22,14 +26,13 @@ class ProjectInvitaion extends Model
         return $this->morphToMany(User::class, ['receiver', 'sender']);
     }
     public function newInvitation($receiver_id, $project_id, $sender = null, ){
-
-        $user  = User::findOrFail($receiver_id);
-        $invitation = $this->create([
+        
+        $invitation =  $this->create([
             'receiver' => $receiver_id,
             'sender' => $sender ? $sender : Auth::id(),
-            'project_id' => $project_id
+            'project_id' => $project_id,
         ]);
-
+        
         return $invitation;
 
     }

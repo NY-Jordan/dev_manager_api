@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sender')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver')->constrained('users')->onDelete('cascade');
+            $table->uuid('uuid')->unique();
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
             $table->integer('status')->default(1); // 1 pending, 2 accepted, 3 refused
             $table->timestamps();

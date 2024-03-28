@@ -31,6 +31,7 @@ class SendEmailToUserGuestInProject implements ShouldQueue
      */
     public function handle(): void
     {
+        dd('ici');
         Mail::send('emails.email_to_guest_in_project',['user' => $this->user, 'invitation' => $this->invitation], function($message) {
             $message->to($this->user->email, "DevHandle")
                     ->from('devhandle@contact.net')

@@ -92,7 +92,5 @@ class AuthController extends Controller
         $otp->setExpiredAt();
         return UserTokenResource::make($user);
     }
-
-
-    
+   
 }

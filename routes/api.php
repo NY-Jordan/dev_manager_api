@@ -37,8 +37,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
     Route::post('create', [ProjectController::class, 'create'])->name('project.create');
     Route::post('update', [ProjectController::class, 'update'])->name('project.update');
     Route::post('delete', [ProjectController::class, 'delete'])->name('project.delete');
-    Route::post('invite/{userId}/user/{projectId}', [ProjectController::class, 'InviteUserOnProject'])
-      ->name('project.inviteUser')
+    Route::post('invite/{userId}/user/{projectId}', [ProjectController::class, 'InviteUserOnProject'])->name('project.inviteUser')
       ->whereNumber('userId')
       ->whereNumber('projectId');
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvitationEnums;
 use Emadadly\LaravelUuid\Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,8 +44,8 @@ class ProjectInvitaion extends Model
         $this->save();
     }
 
-    public static function check_if_exist($uuid,$receiver_id = null)  {
-        $invitation = self::where('uuid', $uuid)->where('receiver', !$receiver_id ? Auth::id() : $receiver_id)->first();
+    public static function check_if_exist($uuid,$user_id = null, $who = InvitationEnums::TYPE_RECEIVER)  {
+        $invitation = self::where('uuid', $uuid)->where($who, !$user_id ? Auth::id() : $user_id)->first();
         $invitation_exist = !empty($invitation) ? $invitation  : false;
        return $invitation_exist;
     }

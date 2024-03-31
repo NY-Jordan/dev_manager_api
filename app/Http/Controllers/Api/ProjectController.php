@@ -75,7 +75,7 @@ class ProjectController extends Controller
     }
 
     public function cancelInvitation(Request $request, $uuid) : JsonResponse {
-        $invitation = ProjectInvitaion::check_if_exist($uuid);
+        $invitation = ProjectInvitaion::check_if_exist($uuid, null, InvitationEnums::TYPE_SENDER);
         abort_if($invitation,404,'Invitation not found');
         $invitation->setStatus(InvitationEnums::STATUS_CANCELED);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);

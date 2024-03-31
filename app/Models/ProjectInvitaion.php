@@ -36,4 +36,16 @@ class ProjectInvitaion extends Model
         return $invitation;
 
     }
+
+    function setStatus($status)  {
+
+        $this->attributes['status'] = $status;
+        $this->save();
+    }
+
+    public static function check_if_exist($uuid,$receiver_id = null)  {
+        $invitation = self::where('uuid', $uuid)->where('receiver', !$receiver_id ? Auth::id() : $receiver_id)->first();
+        $invitation_exist = !empty($invitation) ? $invitation  : false;
+       return $invitation_exist;
+    }
 }

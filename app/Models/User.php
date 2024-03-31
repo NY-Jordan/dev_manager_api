@@ -52,6 +52,10 @@ class User extends Authenticatable
     public function projectInvitation($type = null){
         $this->belongsTo(ProjectInvitaion::class);
     }
+
+    public function userProject(){
+        return $this->morphToMany(projectUser::class, 'user_id');
+    }
     public function getToken($type = null): NewAccessToken
     {
         if ($this->email_verified_at) {

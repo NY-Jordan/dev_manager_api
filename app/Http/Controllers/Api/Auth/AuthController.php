@@ -56,18 +56,8 @@ class AuthController extends Controller
     */
     public function login(LoginRequest $request)  : UserTokenResource {
         $findUserCredentials = User::findByPasswordAndEmail($request->email, $request->password);
-        if(!$findUserCredentials){
-            throw new HttpResponseException(response()->json([
-                'errors' => 'Bad Credentials',
-                'status' => false
-                ], 400));
-        }
-        if(!$findUserCredentials->email_verified_at){
-            throw new HttpResponseException(response()->json([
-                'errors' => 'email not verified',
-                'status' => false
-                ], 400));
-        }
+        abort_if(!$findUserCredentials,400, 'Bad Credentials' ); 
+        abort_if(!$findUserCredentials->email_verified_at, 400,'email not verified');
         return UserTokenResource::make($findUserCredentials);
     }
 
@@ -79,12 +69,7 @@ class AuthController extends Controller
     public  function emailVerification(EmailVerificationRequest $request) : UserTokenResource{
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::EMAIL_VALIDATION);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
-        if(!$otpIsRight){
-            throw new HttpResponseException(response()->json([
-                'errors' => 'otp is not valid',
-                'status' => false
-                ], 400));
-        }
+        abort_if(!$otpIsRight,400, 'otp is not valid'); 
         $user = User::find(Auth::id());
         $user->setEmailVerifiedAt();
         $user->setStatus(true);

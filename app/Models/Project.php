@@ -25,6 +25,10 @@ class Project extends Model
     public function projectInvitation($type = null){
         $this->belongsTo(ProjectInvitaion::class);
     }
+
+    public function userProject(){
+        return $this->morphToMany(projectUser::class, 'project_id');
+    }
     
     public function getProjectOfUser($id = null, $user_id = null){
         $userId = $user_id ? $user_id : Auth::id();

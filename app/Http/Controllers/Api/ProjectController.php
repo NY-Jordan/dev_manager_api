@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\InvitationEnums;
 use App\Events\UserGuestInProject;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\CreateProjectRequest;
@@ -10,6 +11,7 @@ use App\Http\Resources\Project\InviteUserOnProjectRessource;
 use App\Jobs\SendEmailToUserGuestInProject;
 use App\Models\Project;
 use App\Models\ProjectInvitaion;
+use App\Models\projectUser;
 use App\Models\User;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\JsonResponse;
@@ -50,7 +52,6 @@ class ProjectController extends Controller
 
 
     public function InviteUserOnProject(Request $request,int $user_id, int $project_id){
-        
         $user = User::find($user_id);
         $invitation = (new ProjectInvitaion )->newInvitation($user_id, $project_id);
         dispatch(new SendEmailToUserGuestInProject($user, $invitation))->afterResponse();
@@ -58,5 +59,26 @@ class ProjectController extends Controller
     }
 
 
+    public function acceptInvitation(Request $request, $uuid) : JsonResponse{
+        $invitation = ProjectInvitaion::check_if_exist($uuid);
+        abort_if(!$invitation,404,'Invitation not found');
+        $invitation->setStatus(InvitationEnums::STATUS_ACCEPTED);
+        (new projectUser)->addNewUserToProject($invitation);
+        return response()->json(['message' => "operation successfully", 'status' => true], 200);
+    }
+
+    public function rejectInvitation(Request $request, $uuid) : JsonResponse {
+        $invitation = ProjectInvitaion::check_if_exist($uuid);
+        abort_if($invitation,404,'Invitation not found');
+        $invitation->setStatus(InvitationEnums::STATUS_REFUSED);
+        return response()->json(['message' => "operation successfully", 'status' => true], 200);
+    }
+
+    public function cancelInvitation(Request $request, $uuid) : JsonResponse {
+        $invitation = ProjectInvitaion::check_if_exist($uuid);
+        abort_if($invitation,404,'Invitation not found');
+        $invitation->setStatus(InvitationEnums::STATUS_CANCELED);
+        return response()->json(['message' => "operation successfully", 'status' => true], 200);
+    }
 
 }

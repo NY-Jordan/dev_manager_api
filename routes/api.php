@@ -40,6 +40,12 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
     Route::post('invite/{userId}/user/{projectId}', [ProjectController::class, 'InviteUserOnProject'])->name('project.inviteUser')
       ->whereNumber('userId')
       ->whereNumber('projectId');
+    Route::post('invite/user/accept/{uuid}', [ProjectController::class, 'acceptInvitation'])->name('project.acceptInvitation');
+    Route::post('invite/user/reject/{uuid}', [ProjectController::class, 'rejectInvitation'])->name('project.rejectInvitation');
+    Route::post('invite/user/cancel/{uuid}', [ProjectController::class, 'cancelInvitation'])->name('project.cancelInvitation');
 
+  });
+
+  Route::group(['prefix' => 'task'], function () {
   });
 });

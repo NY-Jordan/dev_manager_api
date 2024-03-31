@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InvitationEnums;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->foreignId('receiver')->constrained('users')->onDelete('cascade');
             $table->uuid('uuid')->unique();
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
-            $table->integer('status')->default(1); // 1 pending, 2 accepted, 3 refused
+            $table->integer('status')->default(InvitationEnums::STATUS_PENDING);
             $table->timestamps();
         });
     }

@@ -3,6 +3,13 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -23,8 +30,25 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (Throwable $e, Request $request) {
+            if ($request->is('api/*')) {
+                if($e instanceof NotFoundHttpException) {
+                    Log::info('From renderable method: '.$e->getMessage());
+                    return response()->json([
+                        'message' => $e->getMessage(),
+                        'status' => false
+                    ], 404);
+                }
+
+                if($e instanceof HttpException) {
+                    Log::info('From renderable method: '.$e->getMessage());
+                    return response()->json([
+                        'message' => $e->getMessage(),
+                        'status' => false
+                    ], 400);
+                }
+               
+            }
         });
     }
 }

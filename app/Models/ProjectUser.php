@@ -6,7 +6,7 @@ use App\Enums\InvitationEnums;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class projectUser extends Model
+class ProjectUser extends Model
 {
     use HasFactory;
 
@@ -33,6 +33,12 @@ class projectUser extends Model
         }
        
 
+    }
+
+    public static function isACollaborator($project_id, $user_id) : bool {
+        $user = self::where('user_id', $user_id)->where('id', $project_id)->first();
+        $is = !empty($user) ? true : false;
+        return $is;
     }
 
 }

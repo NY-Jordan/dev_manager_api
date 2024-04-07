@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\TaskGroup;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdatePasswordRequest extends FormRequest
+class AttachUserToTaskGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,12 +24,13 @@ class UpdatePasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => 'required|string',
-            'password' => 'required|string'
+            'project_id' => 'required',
+            'user_id'=> 'required',
+            'task_group_id'=> 'required',
         ];
     }
 
-      /**
+     /**
      * Handle a failed validation attempt.
      *
      * @param  \Illuminate\Contracts\Validation\Validator  $validator

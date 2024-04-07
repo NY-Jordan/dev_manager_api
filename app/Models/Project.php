@@ -29,6 +29,11 @@ class Project extends Model
     public function userProject(){
         return $this->morphToMany(projectUser::class, 'project_id');
     }
+
+    public function groupTask(){
+        $this->belongsTo(groupTask::class);
+
+    }
     
     public function getProjectOfUser($id = null, $user_id = null){
         $userId = $user_id ? $user_id : Auth::id();
@@ -47,5 +52,14 @@ class Project extends Model
         ]);
         return $project;
     }
+
+    public  function isTheAdministrator($user_id) : bool {
+        $user = $this->where('user_id', $user_id)->where('id', $this->project_id)->first();
+        $is = !empty($user) ? true : false;
+        return $is;
+    }
+
+   
+
 
 }

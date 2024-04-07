@@ -47,5 +47,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
   });
 
   Route::group(['prefix' => 'task'], function () {
+    Route::post('create/group', [ProjectController::class, 'acceptInvitation'])->name('project.acceptInvitation');
+
   });
 });

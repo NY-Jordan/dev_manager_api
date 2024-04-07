@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\TaskGroup;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdatePasswordRequest extends FormRequest
+class UpdateTaskGroupStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,8 +24,7 @@ class UpdatePasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => 'required|string',
-            'password' => 'required|string'
+            'status' => 'required',
         ];
     }
 

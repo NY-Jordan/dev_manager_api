@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvitationEnums;
+use App\Enums\ProjectInvitation\InvitationStatusEnums;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,7 +26,7 @@ class ProjectUser extends Model
     }
 
     public function addNewUserToProject(ProjectInvitaion $invitation){
-        if ($invitation->status === InvitationEnums::STATUS_ACCEPTED) {
+        if ($invitation->status === InvitationStatusEnums::STATUS_ACCEPTED) {
             $this->create([
                 'user_id'=> $invitation->receiver_id,
                 'project_id'=> $invitation->project_id

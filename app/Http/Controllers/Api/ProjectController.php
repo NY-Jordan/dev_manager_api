@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\InvitationEnums;
-use App\Events\UserGuestInProject;
+use App\Enums\ProjectInvitation\InvitationEntityEnums;
+use App\Enums\ProjectInvitation\InvitationStatusEnums;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\CreateProjectRequest;
 use App\Http\Resources\Project\GetProjectResource;
@@ -13,10 +13,8 @@ use App\Models\Project;
 use App\Models\ProjectInvitaion;
 use App\Models\projectUser;
 use App\Models\User;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -62,7 +60,8 @@ class ProjectController extends Controller
     public function acceptInvitation(Request $request, $uuid) : JsonResponse{
         $invitation = ProjectInvitaion::check_if_exist($uuid);
         abort_if(!$invitation,404,'Invitation not found');
-        $invitation->setStatus(InvitationEnums::STATUS_ACCEPTED);
+        abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
+        $invitation->setStatus(InvitationStatusEnums::STATUS_ACCEPTED);
         (new projectUser)->addNewUserToProject($invitation);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
@@ -70,14 +69,16 @@ class ProjectController extends Controller
     public function rejectInvitation(Request $request, $uuid) : JsonResponse {
         $invitation = ProjectInvitaion::check_if_exist($uuid);
         abort_if($invitation,404,'Invitation not found');
-        $invitation->setStatus(InvitationEnums::STATUS_REFUSED);
+        abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
+        $invitation->setStatus(InvitationStatusEnums::STATUS_REFUSED);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
     public function cancelInvitation(Request $request, $uuid) : JsonResponse {
-        $invitation = ProjectInvitaion::check_if_exist($uuid, null, InvitationEnums::TYPE_SENDER);
-        abort_if($invitation,404,'Invitation not found');
-        $invitation->setStatus(InvitationEnums::STATUS_CANCELED);
+        $invitation = ProjectInvitaion::check_if_exist($uuid, null, InvitationEntityEnums::TYPE_SENDER->value);
+        abort_if(!$invitation,404,'Invitation not found');
+        abort_if((InvitationStatusEnums::statusIsAccepted($invitation->status) or InvitationStatusEnums::statusIsRefused($invitation->status)),400,'Impossible Operation');
+        $invitation->setStatus(InvitationStatusEnums::STATUS_CANCELED);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 

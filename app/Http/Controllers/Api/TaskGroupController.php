@@ -51,7 +51,7 @@ class TaskGroupController extends Controller
         $taskGroup = TaskGroup::findOrFail($id);
         $project = Project::findOrFail($taskGroup->project_id);
         if ($request->user()->cannot('update', $project)) {
-            abort(403);
+            abort(403); 
         }
         $taskGroup->setStatusAttribute($request->status);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);

@@ -57,7 +57,7 @@ class ProjectController extends Controller
     }
 
 
-    public function acceptInvitation(Request $request, $uuid) : JsonResponse{
+    public function acceptInvitation($uuid) : JsonResponse{
         $invitation = ProjectInvitaion::check_if_exist($uuid);
         abort_if(!$invitation,404,'Invitation not found');
         abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
@@ -66,7 +66,7 @@ class ProjectController extends Controller
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
-    public function rejectInvitation(Request $request, $uuid) : JsonResponse {
+    public function rejectInvitation($uuid) : JsonResponse {
         $invitation = ProjectInvitaion::check_if_exist($uuid);
         abort_if($invitation,404,'Invitation not found');
         abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
@@ -74,7 +74,7 @@ class ProjectController extends Controller
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
-    public function cancelInvitation(Request $request, $uuid) : JsonResponse {
+    public function cancelInvitation($uuid) : JsonResponse {
         $invitation = ProjectInvitaion::check_if_exist($uuid, null, InvitationEntityEnums::TYPE_SENDER->value);
         abort_if(!$invitation,404,'Invitation not found');
         abort_if((InvitationStatusEnums::statusIsAccepted($invitation->status) or InvitationStatusEnums::statusIsRefused($invitation->status)),400,'Impossible Operation');

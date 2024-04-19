@@ -11,7 +11,7 @@ use App\Http\Resources\Project\InviteUserOnProjectRessource;
 use App\Jobs\SendEmailToUserGuestInProject;
 use App\Models\Project;
 use App\Models\ProjectInvitaion;
-use App\Models\projectUser;
+use App\Models\ProjectUser;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,7 +62,7 @@ class ProjectController extends Controller
         abort_if(!$invitation,404,'Invitation not found');
         abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
         $invitation->setStatus(InvitationStatusEnums::STATUS_ACCEPTED);
-        (new projectUser)->addNewUserToProject($invitation);
+        (new ProjectUser)->addNewUserToProject($invitation);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 

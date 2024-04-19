@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\TaskGroupStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskGroup\AttachUserToTaskGroupRequest;
 use App\Http\Requests\TaskGroup\CreateTaskGroupRequest;
@@ -31,7 +32,7 @@ class TaskGroupController extends Controller
         if ($request->user()->cannot('create', $project)) {
             abort(403);
         }
-        $taskGroup = $project->groupTask()->create($request->validated());
+        $taskGroup = TaskGroup::create($request->all());
         return TaskGroupResources::make($taskGroup);
     }
 
@@ -42,7 +43,7 @@ class TaskGroupController extends Controller
         if ($request->user()->cannot('update', $project)) {
             abort(403);
         }
-        $taskGroup->setNameAttribute($request->name);
+        $taskGroup->setName($request->name);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
@@ -53,7 +54,8 @@ class TaskGroupController extends Controller
         if ($request->user()->cannot('update', $project)) {
             abort(403); 
         }
-        $taskGroup->setStatusAttribute($request->status);
+        abort_if(is_null(TaskGroupStatusEnum::tryFrom($request->status)), 404, 'status not found');
+        $taskGroup->setStatus($request->status);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
@@ -65,15 +67,15 @@ class TaskGroupController extends Controller
 
 
     public function getByProject($project_id){
-        $tasksGroup = TaskGroup::where('project_id', $project_id);
-        return response()->json(['task group' => $tasksGroup, 'status' => true], 200);
+        $tasksGroup = TaskGroup::where('project_id', $project_id)->get();
+        return response()->json(['task_groups' => $tasksGroup, 'status' => true], 200);
     }
 
 
     public function attachUserToTaskGroup(AttachUserToTaskGroupRequest $request){
         $project = Project::findOrFail($request->project_id);
-        abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($project->id, $request->user_id), 403, ' Action unauthorized');
-        $userTaskGroup = $this->taskGroupService->attachUserFromTaskGroup($request->task_group_id, $project->user_id);
+        abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($project->id, $request->user_id), 403, 'Action unauthorized');
+        $userTaskGroup = $this->taskGroupService->attachUserFromTaskGroup($request->task_group_id, $request->user_id, $project->id);
         abort_if(!$userTaskGroup, 400, 'user is already attach on this task group');
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
@@ -82,8 +84,7 @@ class TaskGroupController extends Controller
     public function detachUserFromTaskGroup(DetachUserFromTaskGroupRequest $request){
         $project = Project::findOrFail($request->project_id);
         abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($project->id, $request->user_id), 403, ' Action unauthorized');
-        $userTaskGroup = $this->taskGroupService->detachUserFromTaskGroup($request->task_group_id, $project->user_id);
-        abort_if(!$userTaskGroup, 400, 'user is already dettached on this task group');
+        $this->taskGroupService->detachUserFromTaskGroup($request->task_group_id, $request->user_id, $project->id);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 }

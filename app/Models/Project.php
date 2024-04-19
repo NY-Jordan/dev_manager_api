@@ -53,8 +53,8 @@ class Project extends Model
         return $project;
     }
 
-    public  function isTheAdministrator($user_id) : bool {
-        $user = $this->where('user_id', $user_id)->where('id', $this->project_id)->first();
+    public  function isTheAdministrator($user_id, $project_id  = null) : bool {
+        $user = $this->where('user_id', $user_id)->where('id', $project_id ?? $this->project_id)->first();
         $is = !empty($user) ? true : false;
         return $is;
     }

@@ -44,7 +44,7 @@ class ProjectInvitaion extends Model
         $this->save();
     }
 
-    public static function check_if_exist($uuid,$user_id = null, $who = 'receiver')  {
+    public static function check_if_exist($uuid, $user_id = null, $who = 'receiver')  {
         $invitation = self::where('uuid', $uuid)->where($who, !$user_id ? Auth::id() : $user_id)->first();
         $invitation_exist = !empty($invitation) ? $invitation  : false;
        return $invitation_exist;

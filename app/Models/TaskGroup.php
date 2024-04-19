@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,7 +11,7 @@ class TaskGroup extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name','status'
+        'name','status', 'project_id'
     ] ;
 
 
@@ -18,13 +19,15 @@ class TaskGroup extends Model
         return $this->morphToMany(Project::class, 'project_id');
     }
 
-    public function setNameAttribute($name){
-        $this->attributes['name'] = $name;
+    public function setName($name)
+    {
+        $this->name = $name;
         $this->save();
     }
 
-    public function setStatusAttribute($status){
-        $this->attributes['status'] = $status;
+    public function setStatus($status)
+    {
+        $this->status = $status;
         $this->save();
     }
 }

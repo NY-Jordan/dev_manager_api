@@ -12,7 +12,7 @@ class UserService {
 
         $project = Project::findOrFail($project_id);
         $isACollaborator = ProjectUser::isACollaborator($project_id, $user_id);
-        if ($isACollaborator or $project->isTheAdministrator($user_id)){
+        if ($isACollaborator or $project->isTheAdministrator($user_id, $project->id)){
             return true;
         }
         return false;

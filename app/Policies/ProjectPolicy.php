@@ -11,7 +11,7 @@ class ProjectPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user)
     {
         //
     }
@@ -19,7 +19,7 @@ class ProjectPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Project $project): bool
+    public function view(User $user, Project $project)
     {
         //
     }
@@ -29,7 +29,7 @@ class ProjectPolicy
      */
     public function create(User $user, Project $project): bool
     {
-        $isAdmistrator = $project->isTheAdministrator($user->id);
+        $isAdmistrator = $project->isTheAdministrator($user->id, $project->id);
         return $isAdmistrator;
     }
 
@@ -38,15 +38,14 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        $isAdmistrator = $project->isTheAdministrator($user->id);
+        $isAdmistrator = $project->isTheAdministrator($user->id, $project->id);
         return $isAdmistrator;
-    }
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Project $project): bool
+    public function delete(User $user, Project $project)
     {
         //
     }
@@ -54,7 +53,7 @@ class ProjectPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Project $project): bool
+    public function restore(User $user, Project $project)
     {
         //
     }
@@ -62,7 +61,7 @@ class ProjectPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Project $project): bool
+    public function forceDelete(User $user, Project $project)
     {
         //
     }

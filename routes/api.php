@@ -53,13 +53,13 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
 
     // task group
     Route::group(['prefix' => 'taskgroup'], function () {
-      Route::get('/', [TaskGroupController::class, 'getByProject'])->name('project.getTaskgroup');
+      Route::get('/{projectId}', [TaskGroupController::class, 'getByProject'])->name('project.getTaskgroup');
       Route::post('create', [TaskGroupController::class, 'create'])->name('project.getTaskgroup');
         Route::post('update/name/{taskGroupId}', [TaskGroupController::class, 'updateName'])->name('taskgroup.updateName');
         Route::post('update/status/{taskGroupId}', [TaskGroupController::class, 'updateStatus'])->name('taskgroup.updateStatus');
         Route::delete('delete/{taskGroupId}', [TaskGroupController::class, 'delete'])->name('taskgroup.delete');
         Route::post('attach/user', [TaskGroupController::class, 'attachUserToTaskGroup'])->name('taskgroup.attachUser');
-        Route::post('detach/user', [TaskGroupController::class, 'detachUserToTaskGroup'])->name('taskgroup.detachUser');
+        Route::post('detach/user', [TaskGroupController::class, 'detachUserFromTaskGroup'])->name('taskgroup.detachUser');
   });
 
   });

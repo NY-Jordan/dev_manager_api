@@ -29,6 +29,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'status' => 1,
+            'picture' => 'https://img.freepik.com/free-photo/user-profile-icon-front-side_187299-39596.jpg?size=626&ext=jpg&ga=GA1.1.1665549049.1707312326&semt=ais',
         ];
     }
 

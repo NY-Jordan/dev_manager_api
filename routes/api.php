@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TaskGroupController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -60,7 +61,24 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
         Route::delete('delete/{taskGroupId}', [TaskGroupController::class, 'delete'])->name('taskgroup.delete');
         Route::post('attach/user', [TaskGroupController::class, 'attachUserToTaskGroup'])->name('taskgroup.attachUser');
         Route::post('detach/user', [TaskGroupController::class, 'detachUserFromTaskGroup'])->name('taskgroup.detachUser');
-  });
+    });
+
+
+    // task group
+    Route::group(['prefix' => 'task'], function () {
+      Route::post('create', [TaskController::class, 'create'])->name('task.create');
+      Route::post('update/{taskId}', [TaskController::class, 'update'])->name('task.update');
+      Route::delete('delete/{taskId}', [TaskController::class, 'delete'])->name('task.delete');
+
+      Route::group(['prefix' => 'file'], function () {
+        Route::post('create', [TaskController::class, 'attatchFileToTask'])->name('taskFile.create');
+        Route::post('update/{id}', [TaskController::class, 'updateFileTask'])->name('taskFile.update');
+      });
+
+      Route::get('{id}/file', [TaskController::class, 'getAllFilesTask'])->name('taskFile.getAll');
+
+
+    });
 
   });
 

@@ -11,7 +11,6 @@ use App\Http\Requests\TaskGroup\UpdateTaskGroupNameRequest;
 use App\Http\Requests\TaskGroup\UpdateTaskGroupStatusRequest;
 use App\Http\Resources\Task\TaskGroupResources;
 use App\Models\Project;
-use App\Models\projectUser;
 use App\Models\TaskGroup;
 use App\Service\TaskGroupService;
 use App\Service\UserService;

@@ -18,5 +18,7 @@ class TagController extends Controller
     public function getAll()  {
         return response()->json(['data' => Tag::all(), 'status' => true], 201);
     }
+
+    
     
 }

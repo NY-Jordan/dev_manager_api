@@ -56,7 +56,7 @@ class AuthController extends Controller
     */
     public function login(LoginRequest $request)  : UserTokenResource {
         $findUserCredentials = User::findByPasswordAndEmail($request->email, $request->password);
-        abort_if(!$findUserCredentials,400, 'Bad Credentials' ); 
+        abort_if(!$findUserCredentials,422, 'Bad Credentials' ); 
         abort_if(!$findUserCredentials->email_verified_at, 400,'email not verified');
         return UserTokenResource::make($findUserCredentials);
     }

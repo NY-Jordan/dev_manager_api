@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\EmailVerificationRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\User\UserResource;
 use App\Http\Resources\User\UserTokenResource;
 use App\Jobs\EmailVerificationJob;
 use App\Models\Otp;
@@ -78,4 +79,9 @@ class AuthController extends Controller
         return UserTokenResource::make($user);
     }
    
+
+    public function user($id) {
+        $user = User::findOrFail($id);
+        return UserResource::make($user);
+    }
 }

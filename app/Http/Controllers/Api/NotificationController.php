@@ -11,6 +11,7 @@ class NotificationController extends Controller
 {
     public function show (Request $request) {
         $notification  = Notification::where('user_id', Auth::id())
+                                    ->orderByDesc('created_at')
                                     ->paginate($request->query('number') ?? 15);
         return response()->json(['status' => true, 'data' => $notification], 200);  
     }

@@ -14,6 +14,7 @@ class ProjectInvitaion extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'receiver',
         'sender',
         'project_id',
@@ -23,12 +24,19 @@ class ProjectInvitaion extends Model
     public function project(){
         return $this->morphToMany(Project::class, 'project_id');
     }
-    public function user(){
-        return $this->morphToMany(User::class, ['receiver', 'sender']);
+    public function sender(){
+        return $this->morphToMany(User::class,  'sender');
     }
+
+    public function receiver(){
+        return $this->morphToMany(User::class,  'receiver');
+    }
+    
+
     public function newInvitation($receiver_id, $project_id, $sender = null, ){
-        
+       /*  dd($project_id); */
         $invitation =  $this->create([
+            'id',
             'receiver' => $receiver_id,
             'sender' => $sender ? $sender : Auth::id(),
             'project_id' => $project_id,
@@ -44,9 +52,16 @@ class ProjectInvitaion extends Model
         $this->save();
     }
 
-    public static function check_if_exist($uuid, $user_id = null, $who = 'receiver')  {
-        $invitation = self::where('uuid', $uuid)->where($who, !$user_id ? Auth::id() : $user_id)->first();
-        $invitation_exist = !empty($invitation) ? $invitation  : false;
-       return $invitation_exist;
+    public static function check_if_exist($uuid, $user_id = null)  {
+        $invitation = self::where('uuid', $uuid)->where('receiver', !$user_id ? Auth::id() : $user_id)->first();
+        if (!empty($invitation)) {
+           return $invitation;
+        }
+        $_invitation = self::where('uuid', $uuid)->where('sender', !$user_id ? Auth::id() : $user_id)->first();
+        if (!empty($_invitation )) {
+            return $_invitation;
+         }
+        
+        return false;
     }
 }

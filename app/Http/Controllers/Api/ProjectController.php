@@ -9,12 +9,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\CreateProjectRequest;
 use App\Http\Resources\Project\GetProjectResource;
 use App\Http\Resources\Project\InviteUserOnProjectRessource;
+use App\Http\Resources\Project\ProjectInvitationRessource;
 use App\Jobs\SendEmailToUserGuestInProject;
 use App\Models\Project;
 use App\Models\ProjectInvitaion;
 use App\Models\ProjectUser;
 use App\Models\User;
+use App\Notifications\ProjectInvitationAcceptedNotification;
+use App\Notifications\ProjectInvitationConfirmationNot;
 use App\Notifications\ProjectInvitationNotification;
+use App\Notifications\ProjectInvitationRefusedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,9 +30,22 @@ class ProjectController extends Controller
         
     } 
 
+
+    function getInvitation($uuid) {
+        $invitation = ProjectInvitaion::check_if_exist($uuid);
+        abort_if(!$invitation,404,'Invitation not found');
+        return ProjectInvitationRessource::make($invitation);
+
+    }
+
     public function getUserProjects(Project $project) : GetProjectResource{
-        $projects =  $project->getProjectOfUser();
-        return GetProjectResource::make( $projects);
+        $ownProjects =  $project->getProjectOfUser();
+        $projectUsers = ProjectUser::where('user_id', Auth::id())->pluck('project_id');
+        $projectsInvited = Project::whereIn('id', $projectUsers)->get();
+        $projects = $ownProjects->merge($projectsInvited);
+
+        
+        return GetProjectResource::make( $projects); 
     }
 
 
@@ -53,8 +70,9 @@ class ProjectController extends Controller
 
 
     public function InviteUserOnProject(Request $request,int $user_id, int $project_id){
-        $user = User::find($user_id);
+        $receiver = User::find($user_id);
         $sender = User::find(Auth::id());
+        Project::findOrFail($project_id);
         $ifalreadyExist = ProjectInvitaion::whereReceiver($user_id)
         ->whereProjectId($project_id)
         ->where('status',StatusEnum::STATUS_ACTIVE)
@@ -63,9 +81,9 @@ class ProjectController extends Controller
             return response()->json(['message' => 'Invitation already sent', 'status' => true], 412);
         }
         $invitation = (new ProjectInvitaion )->newInvitation($user_id, $project_id);
-        dispatch(new SendEmailToUserGuestInProject($user, $invitation))->afterResponse();
-        
-        $sender->notify(new ProjectInvitationNotification($sender));
+        dispatch(new SendEmailToUserGuestInProject($receiver, $invitation))->afterResponse();
+        $sender->notify(new ProjectInvitationNotification($sender, $invitation->uuid));
+        $receiver->notify(new ProjectInvitationConfirmationNot($receiver, $invitation->uuid));
         return InviteUserOnProjectRessource::make($invitation);
     }
 
@@ -76,21 +94,25 @@ class ProjectController extends Controller
         abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
         $invitation->setStatus(InvitationStatusEnums::STATUS_ACCEPTED);
         (new ProjectUser)->addNewUserToProject($invitation);
+        $sender = User::findOrFail($invitation->sender);
+        $sender->notify(new ProjectInvitationAcceptedNotification($sender,$invitation));
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
     
     public function rejectInvitation($uuid) : JsonResponse {
         $invitation = ProjectInvitaion::check_if_exist($uuid);
-        abort_if($invitation,404,'Invitation not found');
+        abort_if(!$invitation,404,'Invitation not found');
         abort_if(InvitationStatusEnums::statusIsCanceled($invitation->status),400,'The invitation canceled');
         $invitation->setStatus(InvitationStatusEnums::STATUS_REFUSED);
+        $sender = User::findOrFail($invitation->sender);
+        $sender->notify(new ProjectInvitationRefusedNotification($sender,$invitation));
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
 
     public function cancelInvitation($uuid) : JsonResponse {
-        $invitation = ProjectInvitaion::check_if_exist($uuid, null, InvitationEntityEnums::TYPE_SENDER->value);
+        $invitation = ProjectInvitaion::check_if_exist($uuid);
         abort_if(!$invitation,404,'Invitation not found');
         abort_if((InvitationStatusEnums::statusIsAccepted($invitation->status) or InvitationStatusEnums::statusIsRefused($invitation->status)),400,'Impossible Operation');
         $invitation->setStatus(InvitationStatusEnums::STATUS_CANCELED);

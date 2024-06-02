@@ -63,7 +63,7 @@ class User extends Authenticatable
     }
 
     public function userProject(){
-        return $this->morphToMany(projectUser::class, 'user_id');
+        return $this->morphToMany(ProjectUser::class, 'user_id');
     }
     public function getToken($type = null): NewAccessToken
     {

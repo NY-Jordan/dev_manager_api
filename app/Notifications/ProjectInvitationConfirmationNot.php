@@ -13,7 +13,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProjectInvitationNotification extends Notification
+class ProjectInvitationConfirmationNot extends Notification
 {
     use Queueable;
 
@@ -61,12 +61,10 @@ class ProjectInvitationNotification extends Notification
      */
     public function toBroadcast(): BroadcastMessage
     {
-         $notification =  ModelsNotification::createNotification(NotificationEnum::INVITATION, $this->user->id, $this->contentId);
+         $notification =  ModelsNotification::createNotification(NotificationEnum::INVITATION_CONFIRMATION, $this->user->id, $this->contentId);
         return new BroadcastMessage([
             'notification' =>  $notification,
             'user' => $this->user,
         ]);
     }
 }
-
-

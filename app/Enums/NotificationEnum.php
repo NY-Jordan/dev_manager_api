@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Enums;
+
+enum NotificationEnum: string
+{
+    case INVITATION = "INVITATION";
+    case INVITATION_CONFIRMATION = "INVITATION_CONFIRMATION";
+    case INVITATION_ACCEPTED = "INVITATION_ACCEPTED";
+    case INVITATION_REFUSED = "INVITATION_REFUSED";
+    case MESSAGE = "MESSAGE";
+}

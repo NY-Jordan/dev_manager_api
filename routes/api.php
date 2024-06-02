@@ -33,7 +33,7 @@ Route::group(['prefix' => 'auth'], function () {
 
 Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
   Route::get('logout', [AuthController::class, 'logout']);
-  Route::get('user', [AuthController::class, 'user']);
+  Route::get('user/{id}', [AuthController::class, 'user']);
   Route::get('notifications', [NotificationController::class, 'show']);
 
   // project root
@@ -53,6 +53,8 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::post('user/accept/{uuid}', [ProjectController::class, 'acceptInvitation'])->name('project.acceptInvitation');
       Route::post('user/reject/{uuid}', [ProjectController::class, 'rejectInvitation'])->name('project.rejectInvitation');
       Route::post('user/cancel/{uuid}', [ProjectController::class, 'cancelInvitation'])->name('project.cancelInvitation');
+      Route::get('{uuid}', [ProjectController::class, 'getInvitation'])->name('project.getInvitation');
+
     });
 
     // task group

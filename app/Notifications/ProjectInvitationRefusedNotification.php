@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Enums\NotificationEnum;
+use App\Http\Resources\Project\ProjectInvitationRessource;
 use App\Models\Notification as ModelsNotification;
 use App\Models\ProjectInvitaion;
 use App\Models\User;
@@ -13,14 +14,14 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProjectInvitationNotification extends Notification
+class ProjectInvitationRefusedNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(private User $user, private Int|String $contentId)
+    public function __construct(private User $user, private ProjectInvitaion $invitation)
     {
         //
     }
@@ -61,9 +62,10 @@ class ProjectInvitationNotification extends Notification
      */
     public function toBroadcast(): BroadcastMessage
     {
-         $notification =  ModelsNotification::createNotification(NotificationEnum::INVITATION, $this->user->id, $this->contentId);
+        $notification =  ModelsNotification::createNotification(NotificationEnum::INVITATION_REFUSED, $this->user->id, $this->invitation->uuid);
+
         return new BroadcastMessage([
-            'notification' =>  $notification,
+            'notification' => $notification,
             'user' => $this->user,
         ]);
     }

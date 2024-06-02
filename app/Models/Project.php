@@ -27,7 +27,7 @@ class Project extends Model
     }
 
     public function userProject(){
-        return $this->morphToMany(projectUser::class, 'project_id');
+        return $this->morphToMany(ProjectUser::class, 'project_id');
     }
 
     public function groupTask(){

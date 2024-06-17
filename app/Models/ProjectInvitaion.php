@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProjectInvitation\InvitationEntityEnums;
+use App\Enums\StatusEnum;
 use Emadadly\LaravelUuid\Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,9 +42,7 @@ class ProjectInvitaion extends Model
             'sender' => $sender ? $sender : Auth::id(),
             'project_id' => $project_id,
         ]);
-        
         return $invitation;
-
     }
 
     function setStatus($status)  {
@@ -61,7 +60,18 @@ class ProjectInvitaion extends Model
         if (!empty($_invitation )) {
             return $_invitation;
          }
-        
         return false;
     }
+
+    public static function check_if_user_is_invited($projectId,$userId) {
+        $invitation = self::whereReceiver($userId)
+        ->whereProjectId($projectId)
+        ->where('status',StatusEnum::STATUS_ACTIVE)
+        ->first();
+        if ($invitation) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -10,6 +10,7 @@ use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
@@ -95,6 +96,13 @@ class User extends Authenticatable
     public function setStatus(bool $value){
         $this->status = $value;
         $this->save();
+    }
+
+    public static function search($key){
+        return self::where('name', 'like','%'.$key.'%')
+        ->orWhere('email', 'like','%'.$key.'%')
+        ->get()
+        ->except(Auth::id());
     }
 
     public function setPassword($password){

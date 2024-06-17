@@ -40,10 +40,10 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
   Route::group(['prefix' => 'project'], function () {
     Route::get('user', [ProjectController::class, 'getUserProjects'])->name('project.user');
     Route::post('create', [ProjectController::class, 'create'])->name('project.create');
-    Route::post('update', [ProjectController::class, 'update'])->name('project.update');
+    Route::post('update/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::post('delete/{projectId}', [ProjectController::class, 'delete'])->name('project.delete');
     Route::get('search/{projectId}', [ProjectController::class, 'searchUser'])->name('project.searchUser');
-
+    
 
     // project invitation
     Route::group(['prefix' => 'invite'], function () {
@@ -54,7 +54,6 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::post('user/reject/{uuid}', [ProjectController::class, 'rejectInvitation'])->name('project.rejectInvitation');
       Route::post('user/cancel/{uuid}', [ProjectController::class, 'cancelInvitation'])->name('project.cancelInvitation');
       Route::get('{uuid}', [ProjectController::class, 'getInvitation'])->name('project.getInvitation');
-
     });
 
     // task group

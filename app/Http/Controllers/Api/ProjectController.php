@@ -7,10 +7,12 @@ use App\Enums\ProjectInvitation\InvitationStatusEnums;
 use App\Enums\StatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\CreateProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\Project\GetProjectResource;
 use App\Http\Resources\Project\InviteUserOnProjectRessource;
 use App\Http\Resources\Project\ProjectInvitationRessource;
 use App\Jobs\SendEmailToUserGuestInProject;
+use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectInvitaion;
 use App\Models\ProjectUser;
@@ -19,6 +21,7 @@ use App\Notifications\ProjectInvitationAcceptedNotification;
 use App\Notifications\ProjectInvitationConfirmationNot;
 use App\Notifications\ProjectInvitationNotification;
 use App\Notifications\ProjectInvitationRefusedNotification;
+use App\Service\ProjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,9 +46,13 @@ class ProjectController extends Controller
         $projectUsers = ProjectUser::where('user_id', Auth::id())->pluck('project_id');
         $projectsInvited = Project::whereIn('id', $projectUsers)->get();
         $projects = $ownProjects->merge($projectsInvited);
-
-        
-        return GetProjectResource::make( $projects); 
+        $result  = collect([]);
+        foreach ($projects as $key => $project) {
+            $asAccessRight = $project->isTheAdministrator(Auth::id());
+            $project['access'] =  $asAccessRight;
+            $result->push($project); 
+        }
+        return GetProjectResource::make($result); 
     }
 
 
@@ -56,15 +63,25 @@ class ProjectController extends Controller
     } 
 
 
-    public function update()
-    {
-        
+    public function update(UpdateProjectRequest $request, $id){
+        $project = Project::findOrFail($id);
+        if ($request->user()->cannot('update', $project)) {
+            abort(403);
+        }
+        $project->setName($request->name);
+        return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
     
     
-    public function delete($id, Project $project) : JsonResponse
+    public function delete($id,  Request $request) : JsonResponse
     {
-        $project->getProjectOfUser($id)->delete();
+        $project = Project::findOrFail($id);
+        if ($request->user()->cannot('update', $project)) {
+            abort(403);
+        }
+        $deleteNotificationAndInvitation = ProjectService::deleteProjectInvitationAndNotification($project);
+        abort_if(!$deleteNotificationAndInvitation, 400, 'error when delete notification and invitations');
+        $project->getProjectOfUser($id)->first()->delete();
         return response()->json(['message' => "project deleted successfully", 'status' => true], 200);
     }
 
@@ -73,11 +90,8 @@ class ProjectController extends Controller
         $receiver = User::find($user_id);
         $sender = User::find(Auth::id());
         Project::findOrFail($project_id);
-        $ifalreadyExist = ProjectInvitaion::whereReceiver($user_id)
-        ->whereProjectId($project_id)
-        ->where('status',StatusEnum::STATUS_ACTIVE)
-        ->first();
-        if ($ifalreadyExist) {
+        $invitation = ProjectInvitaion::check_if_user_is_invited($project_id, $user_id);
+        if ($invitation) {
             return response()->json(['message' => 'Invitation already sent', 'status' => true], 412);
         }
         $invitation = (new ProjectInvitaion )->newInvitation($user_id, $project_id);
@@ -124,10 +138,7 @@ class ProjectController extends Controller
         $project = Project::findOrFail($projectId);
         abort_if(!$project->isTheAdministrator(Auth::id(), $project->id), 403, 'You are not authorized');
         if ($request->search) {
-           $users = User::where('name', 'like','%'.$request->search.'%')
-           ->orWhere('email', 'like','%'.$request->search.'%')
-           ->get()
-           ->except(Auth::id());
+           $users = User::search($request->search);
         } else {
             $users = User::all()->except(Auth::id());
         }

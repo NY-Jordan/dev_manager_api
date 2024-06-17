@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\StatusEnum;
+use App\Enums\TaskGroupStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +16,7 @@ return new class extends Migration
         Schema::create('task_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('status')->default('1'); // 1-public or 2-private
+            $table->string('status')->default(TaskGroupStatusEnum::PUBLIC_STATUS); 
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
             $table->timestamps();
         });

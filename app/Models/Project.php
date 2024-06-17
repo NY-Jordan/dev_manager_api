@@ -30,6 +30,12 @@ class Project extends Model
         return $this->morphToMany(ProjectUser::class, 'project_id');
     }
 
+    public function setName($name)
+    {
+        $this->name = $name;
+        $this->save();
+    }
+    
     public function groupTask(){
         $this->belongsTo(groupTask::class);
 
@@ -54,7 +60,7 @@ class Project extends Model
     }
 
     public  function isTheAdministrator($user_id, $project_id  = null) : bool {
-        $user = $this->where('user_id', $user_id)->where('id', $project_id ?? $this->project_id)->first();
+        $user = $this->where('user_id', $user_id)->where('id', $project_id ?? $this->id)->first();
         $is = !empty($user) ? true : false;
         return $is;
     }

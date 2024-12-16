@@ -28,7 +28,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'picture'
+        'picture',
+        'email_verified_at',
+        'google_id',
     ];
 
     /**
@@ -58,7 +60,7 @@ class User extends Authenticatable
     {
         return 'users.'.$this->id;
     }
-    
+
     public function projectInvitation($type = null){
         $this->belongsTo(ProjectInvitaion::class);
     }

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Auth\GithubAuth2Controller;
+use App\Http\Controllers\Api\Auth\GoogleAuth2Controller;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
@@ -19,8 +21,17 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::group(['prefix' => 'auth2'], function ()  {
+    Route::get('/google', [GoogleAuth2Controller::class, 'redirectToAuth']);
+    Route::get('/google/callback', [GoogleAuth2Controller::class, 'handleAuthCallback']);
+
+    Route::get('/github', [GithubAuth2Controller::class, 'redirectToAuth']);
+    Route::get('/github/callback', [GithubAuth2Controller::class, 'handleAuthCallback']);
+});
+
 
 Route::group(['prefix' => 'auth'], function () {
+
     Route::post('login', [AuthController::class, 'login'])->name('login');
     Route::post('register', [AuthController::class, 'register'])->name('register');
     Route::post('email/verification', [AuthController::class, 'emailVerification'])
@@ -43,7 +54,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
     Route::post('update/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::post('delete/{projectId}', [ProjectController::class, 'delete'])->name('project.delete');
     Route::get('search/{projectId}', [ProjectController::class, 'searchUser'])->name('project.searchUser');
-    
+
 
     // project invitation
     Route::group(['prefix' => 'invite'], function () {

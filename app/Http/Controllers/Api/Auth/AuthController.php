@@ -20,7 +20,9 @@ use App\Models\User;
 use App\Service\AuthService;
 use App\Service\OtpService;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -29,7 +31,7 @@ class AuthController extends Controller
         private OtpService $otpService
         )
     {
-        
+
     }
 
     /**
@@ -40,14 +42,14 @@ class AuthController extends Controller
     public function register(RegisterRequest $request) : UserTokenResource
     {
         $user  = $this->authService->register(
-            $request->name, 
-            $request->email, 
+            $request->name,
+            $request->email,
             $request->picture,
-            $request->password, 
+            $request->password,
         );
         event(new RegisterEvent($user));
         return UserTokenResource::make($user);
-        
+
     }
 
 
@@ -57,7 +59,7 @@ class AuthController extends Controller
     */
     public function login(LoginRequest $request)  : UserTokenResource {
         $findUserCredentials = User::findByPasswordAndEmail($request->email, $request->password);
-        abort_if(!$findUserCredentials,422, 'Bad Credentials' ); 
+        abort_if(!$findUserCredentials,422, 'Bad Credentials' );
         abort_if(!$findUserCredentials->email_verified_at, 400,'email not verified');
         return UserTokenResource::make($findUserCredentials);
     }
@@ -70,7 +72,7 @@ class AuthController extends Controller
     public  function emailVerification(EmailVerificationRequest $request) : UserTokenResource{
         $otp = Otp::findByUserAndType(Auth::user()->id, OtpEnums::EMAIL_VALIDATION);
         $otpIsRight =  $this->otpService->check($otp,$request->code);
-        abort_if(!$otpIsRight,400, 'otp is not valid'); 
+        abort_if(!$otpIsRight,400, 'otp is not valid');
         $user = User::find(Auth::id());
         $user->setEmailVerifiedAt();
         $user->setStatus(true);
@@ -78,7 +80,7 @@ class AuthController extends Controller
         $otp->setExpiredAt();
         return UserTokenResource::make($user);
     }
-   
+
 
     public function user($id) {
         $user = User::findOrFail($id);

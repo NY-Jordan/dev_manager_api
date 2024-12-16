@@ -25,6 +25,7 @@ class CreateProjectRequest extends FormRequest
     {
         return [
             'name' => 'string|required',
+            'logo' => 'string',
             'delivery_at' => 'nullable|date'
         ];
     }

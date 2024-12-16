@@ -18,6 +18,7 @@ class Project extends Model
      */
     protected $fillable = [
         'name',
+        'logo',
         'user_id',
         'delivery_at'
     ];
@@ -35,12 +36,12 @@ class Project extends Model
         $this->name = $name;
         $this->save();
     }
-    
+
     public function groupTask(){
         $this->belongsTo(groupTask::class);
 
     }
-    
+
     public function getProjectOfUser($id = null, $user_id = null){
         $userId = $user_id ? $user_id : Auth::id();
         if(!$id){
@@ -65,7 +66,7 @@ class Project extends Model
         return $is;
     }
 
-   
+
 
 
 }

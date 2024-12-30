@@ -16,12 +16,14 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taskgroup_id')->constrained('task_groups')->onDelete('cascade');
+            $table->foreignId('taskgroup_id')->nullable()->constrained('task_groups')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->string('breifing');
-            $table->string('details');
+            $table->string('details')->nullable();
             $table->dateTime('reminder')->nullable();
             $table->foreignId('phase')->constrained('task_phases')->onDelete('cascade');
+            $table->foreignId('type')->constrained('task_types')->onDelete('cascade');
             $table->string('status')->default(StatusEnum::STATUS_ACTIVE);
             $table->timestamps();
         });

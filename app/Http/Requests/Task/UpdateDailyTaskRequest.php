@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Project;
+namespace App\Http\Requests\Task;
+
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateProjectRequest extends FormRequest
+class UpdateDailyTaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,18 +25,12 @@ class CreateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string|required',
-            'logo' => [
-                'nullable',
-                'file',
-                'mimes:jpg,jpeg,png',
-                'max:2048', 
-            ],
-            'delivery_at' => 'nullable|date'
+            'title' => 'required|string',
+            'breifing' => 'required|string',
         ];
     }
 
-         /**
+      /**
      * Handle a failed validation attempt.
      *
      * @param  \Illuminate\Contracts\Validation\Validator  $validator

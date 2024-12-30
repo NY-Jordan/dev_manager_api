@@ -6,6 +6,8 @@ namespace App\Service;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectInvitaion;
+use App\Models\ProjectUser;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ProjectService {
@@ -25,8 +27,16 @@ class ProjectService {
             DB::commit();
             return false;
         }
-     
+
     }
 
-   
+    public function fechProjectsUSer(int|null  $userId = null)  {
+        $project = new Project();
+        $ownProjects =  $project->getProjectOfUser();
+        $projectUsers = ProjectUser::where('user_id', $userId ? $userId : Auth::id())->pluck('project_id');
+        $projectsInvited = Project::whereIn('id', $projectUsers)->get();
+        $projects = $ownProjects->merge($projectsInvited);
+        return $projects;
+    }
+
 }

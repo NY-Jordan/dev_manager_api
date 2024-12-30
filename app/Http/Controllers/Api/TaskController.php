@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\TaskPhaseEnum;
+use App\Enums\TaskTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateDailyTaskRequest;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\Task\TaskFileRequest;
 use App\Http\Requests\Task\TaskRequest;
@@ -18,16 +20,17 @@ class TaskController extends Controller
 {
     public function create(TaskRequest $request)  {
         abort_if(!TaskGroup::find($request->taskgroup_id), 404, 'task group not found');
-        abort_if(Task::titleIsAlreadyUseInThisGroupTask($request->title,$request->taskgroup_id), 422, 'Title already use in this Task Group');
+        abort_if(Task::titleIsAlreadyUseInTheCurrentGroupTask($request->title,$request->taskgroup_id), 422, 'Title already use in this Task Group');
         $data = $request->all();
         $data['phase'] = TaskPhase::where('name', TaskPhaseEnum::BACKLOG)->first()->id;
         Task::create($data);
         return response()->json(['message' => "operation successfully", 'status' => true], 201);
     }
 
+ 
     public function update(UpdateTaskRequest $request, $id)  {
         if ($request->title) {
-            abort_if(Task::titleIsAlreadyUseInThisGroupTask($request->title,$request->taskgroup_id), 422, 'Title already use in this Task Group');
+            abort_if(Task::titleIsAlreadyUseInTheCurrentGroupTask($request->title,$request->taskgroup_id), 422, 'Title already use in this Task Group');
         }
         $task  = Task::findOrFail($id);
         $task->update($request->all());
@@ -62,7 +65,7 @@ class TaskController extends Controller
         return response()->json([
             'task' => $id,
             'files' => $files,
-            'status' => true], 
+            'status' => true],
         201);
     }
 

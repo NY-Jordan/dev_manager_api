@@ -8,7 +8,7 @@ use App\Enums\StatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\CreateProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
-use App\Http\Resources\Project\GetProjectResource;
+use App\Http\Resources\Project\FecthProjectsResource;
 use App\Http\Resources\Project\InviteUserOnProjectRessource;
 use App\Http\Resources\Project\ProjectInvitationRessource;
 use App\Jobs\SendEmailToUserGuestInProject;
@@ -25,13 +25,14 @@ use App\Service\ProjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
-    public function __construct()
+    public function __construct(private ProjectService $projectService )
     {
-        
-    } 
+
+    }
 
 
     function getInvitation($uuid) {
@@ -41,26 +42,19 @@ class ProjectController extends Controller
 
     }
 
-    public function getUserProjects(Project $project) : GetProjectResource{
-        $ownProjects =  $project->getProjectOfUser();
-        $projectUsers = ProjectUser::where('user_id', Auth::id())->pluck('project_id');
-        $projectsInvited = Project::whereIn('id', $projectUsers)->get();
-        $projects = $ownProjects->merge($projectsInvited);
-        $result  = collect([]);
-        foreach ($projects as $key => $project) {
-            $asAccessRight = $project->isTheAdministrator(Auth::id());
-            $project['access'] =  $asAccessRight;
-            $result->push($project); 
-        }
-        return GetProjectResource::make($result); 
+    public function getUserProjects(Project $project) : FecthProjectsResource{
+
+        $projects = $this->projectService->fechProjectsUser();
+        return FecthProjectsResource::make($projects);
     }
 
 
     public function create(CreateProjectRequest $request, Project $project)
     {
-        $project = $project->createNewProject($request->name);
-        return response()->json(['message' => "project created successfully", 'status' => true], 200);       
-    } 
+        $logo = $request->file('logo');
+        $project = $project->createNewProject($request->name, $logo);
+        return response()->json(['message' => "project created successfully", 'status' => true], 200);
+    }
 
 
     public function update(UpdateProjectRequest $request, $id){
@@ -71,8 +65,8 @@ class ProjectController extends Controller
         $project->setName($request->name);
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
-    
-    
+
+
     public function delete($id,  Request $request) : JsonResponse
     {
         $project = Project::findOrFail($id);
@@ -113,7 +107,7 @@ class ProjectController extends Controller
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
-    
+
     public function rejectInvitation($uuid) : JsonResponse {
         $invitation = ProjectInvitaion::check_if_exist($uuid);
         abort_if(!$invitation,404,'Invitation not found');

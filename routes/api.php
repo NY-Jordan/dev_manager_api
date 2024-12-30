@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TaskGroupController;
+use App\Http\Controllers\Api\DailyTaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -52,7 +53,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
     Route::get('user', [ProjectController::class, 'getUserProjects'])->name('project.user');
     Route::post('create', [ProjectController::class, 'create'])->name('project.create');
     Route::post('update/{id}', [ProjectController::class, 'update'])->name('project.update');
-    Route::post('delete/{projectId}', [ProjectController::class, 'delete'])->name('project.delete');
+    Route::delete('delete/{projectId}', [ProjectController::class, 'delete'])->name('project.delete');
     Route::get('search/{projectId}', [ProjectController::class, 'searchUser'])->name('project.searchUser');
 
 
@@ -88,6 +89,12 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::group(['prefix' => 'file'], function () {
         Route::post('create', [TaskController::class, 'attatchFileToTask'])->name('taskFile.create');
         Route::post('update/{id}', [TaskController::class, 'updateFileTask'])->name('taskFile.update');
+      });
+
+      Route::group(['prefix' => 'daily'], function () {
+        Route::post('create', [DailyTaskController::class, 'create'])->name('task.daily.create');
+        Route::post('update/{id}', [DailyTaskController::class, 'updateFileTask'])->name('task.daily.update');
+        Route::get('/', [DailyTaskController::class, 'fetch'])->name('task.daily.fecth');
       });
 
       Route::get('{id}/file', [TaskController::class, 'getAllFilesTask'])->name('taskFile.getAll');

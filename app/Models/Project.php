@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use DateTime;
+use Faker\Core\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 
 class Project extends Model
@@ -28,7 +30,7 @@ class Project extends Model
     }
 
     public function userProject(){
-        return $this->morphToMany(ProjectUser::class, 'project_id');
+        return $this->hasMany(ProjectUser::class, 'project_id');
     }
 
     public function setName($name)
@@ -37,10 +39,28 @@ class Project extends Model
         $this->save();
     }
 
-    public function groupTask(){
-        $this->belongsTo(groupTask::class);
+    public function tasksGroup(){
+       return  $this->hasMany(TaskGroup::class);
 
     }
+
+    public function getCollaborators(null|int $projectId = null){
+        $project = $this->find($projectId ? $projectId : $this->id);
+        $projectUsers = $project->userProject;
+        return $projectUsers;
+    }
+
+    public function getTasks(null|int $projectId = null){
+        $project = $this->find($projectId ? $projectId : $this->id);
+        $taskGroups = $project->tasksGroup;
+        $allTasks = collect();
+        foreach ($taskGroups as $taskGroup) {
+            $allTasks = $allTasks->merge($taskGroup->tasks);
+        }
+
+        return $allTasks;
+    }
+
 
     public function getProjectOfUser($id = null, $user_id = null){
         $userId = $user_id ? $user_id : Auth::id();
@@ -50,9 +70,20 @@ class Project extends Model
         return $this->where('id', $id)->where('user_id', $userId)->get();
     }
 
-    public function createNewProject(string $name, $user_id = null,  DateTime $delivery_at = null){
+    public function createNewProject(string $name, UploadedFile|null $logo,$user_id = null,  DateTime $delivery_at = null){
+
+        if ($logo) {
+            $filename = 'project'.\random_int(0, 1000000).'.'.$logo->getClientOriginalExtension();
+            $path = $logo->storeAs(
+                'projects/'.auth()->user()->name,
+                $filename,
+                'public'
+            );
+            $fullPath = $url = asset('storage/' . $path);
+        }
         $project = $this->create([
             'name' => $name,
+            'logo' => $fullPath ?? null ,
             'user_id' => $user_id ? $user_id : Auth::id(),
             'delevry_at' => $delivery_at
 
@@ -60,8 +91,8 @@ class Project extends Model
         return $project;
     }
 
-    public  function isTheAdministrator($user_id, $project_id  = null) : bool {
-        $user = $this->where('user_id', $user_id)->where('id', $project_id ?? $this->id)->first();
+    public  function isTheAdministrator(int|null $userId = null, $project_id  = null) : bool {
+        $user = $this->where('user_id', $userId ? $userId : Auth::id())->where('id', $project_id ?? $this->id)->first();
         $is = !empty($user) ? true : false;
         return $is;
     }

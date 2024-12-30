@@ -16,7 +16,13 @@ class TaskGroup extends Model
 
 
     public function project(){
-        return $this->morphToMany(Project::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
+
+
+    public function tasks(){
+        return $this->hasMany(Task::class, );
     }
 
     public function setName($name)

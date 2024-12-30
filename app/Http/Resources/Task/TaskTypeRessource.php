@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Project;
+namespace App\Http\Resources\Task;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GetProjectResource extends JsonResource
+class TaskTypeRessource extends JsonResource
 {
-   
     /**
      * Transform the resource into an array.
      *
@@ -16,9 +15,9 @@ class GetProjectResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'count' => $this->resource->count(),
-            'projects' => $this->resource,
-            'status' => true
+            'name' => $this->name,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

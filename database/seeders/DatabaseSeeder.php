@@ -17,10 +17,11 @@ class DatabaseSeeder extends Seeder
          \App\Models\User::factory(1)->create();
 
          \App\Models\Project::factory(2)->create();
-         
+
           $this->call([
-            TaskStatusSeeder::class
+            TaskStatusSeeder::class,
+            TaskTypeSeeder::class
           ]);
-         
+
     }
 }

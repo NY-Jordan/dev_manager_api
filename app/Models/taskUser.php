@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class taskUser extends Model
 {
     use HasFactory;
+
+    
 }

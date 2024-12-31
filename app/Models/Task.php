@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\TaskPhaseEnum;
 use App\Enums\TaskTypeEnum;
+use Carbon\Carbon;
+use Date;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +29,10 @@ class Task extends Model
     public function taskType(){
         return $this->belongsTo(TaskType::class, 'type');
     }
+
+    public function taskPhase(){
+        return $this->belongsTo(TaskPhase::class, 'phase');
+    }
     public function taskGroup(){
         return $this->belongsTo(related: TaskGroup::class, );
     }
@@ -45,12 +51,23 @@ class Task extends Model
         return $task;
     }
 
-    function fetchDailyTasks()  :array|Collection  {
+    function fetchDailyTasks(null|string $search = null, null|string $date = null)  :array|Collection  {
         $typeId = TaskType::where('name', TaskTypeEnum::OWN)->first()->id;
 
-        return $this->where('type', $typeId)
-        ->where('user_id', Auth::id())
-        ->get();
+        $builder =  $this->where('type', $typeId)
+        ->where('user_id', Auth::id());
+
+        if ($date) {
+            $builder->whereDate('created_at', Carbon::parse($date)->toDateString());
+        } else {
+            $builder->whereDate('created_at', now()->toDateString());
+        }
+
+        if ($search) {
+            $builder->where('title','like', "%$search%");
+        }
+
+        return $builder->get();
     }
 
     static function titleIsAlreadyUseInTheCurrentGroupTask(string $title, int $taskgroup_id) : bool {
@@ -59,5 +76,11 @@ class Task extends Model
             return true;
         }
         return false ;
+    }
+
+    public function setPhase($phaseId)
+    {
+        $this->phase = $phaseId;
+        $this->save();
     }
 }

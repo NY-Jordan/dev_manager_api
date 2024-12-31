@@ -12,4 +12,9 @@ class TaskPhase extends Model
         'name',
         'status'
     ];
+
+    public function tasks(){
+        return $this->hasMany(Task::class, );
+    }
+
 }

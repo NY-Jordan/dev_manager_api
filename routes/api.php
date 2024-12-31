@@ -93,7 +93,8 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
 
       Route::group(['prefix' => 'daily'], function () {
         Route::post('create', [DailyTaskController::class, 'create'])->name('task.daily.create');
-        Route::post('update/{id}', [DailyTaskController::class, 'updateFileTask'])->name('task.daily.update');
+        Route::post('update/{id}', [DailyTaskController::class, 'update'])->name('task.daily.update');
+        Route::post('update/phase/{id}', [DailyTaskController::class, 'updatePhase'])->name('task.daily.updatePhase');
         Route::get('/', [DailyTaskController::class, 'fetch'])->name('task.daily.fecth');
       });
 

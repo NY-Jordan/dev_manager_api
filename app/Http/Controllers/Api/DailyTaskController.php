@@ -25,6 +25,7 @@ class DailyTaskController extends Controller
         return DailyTasksResource::collection( $task->fetchDailyTasks($request->search, $request->date));
     }
 
+    
     public function update(UpdateDailyTaskRequest $request, $id)  {
         $task  = Task::findOrFail($id);
         $task->update($request->all());

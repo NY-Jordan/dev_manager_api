@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enums\StatusEnum;
 use App\Enums\TokenTypeEnums;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -61,13 +62,30 @@ class User extends Authenticatable
         return 'users.'.$this->id;
     }
 
-    public function projectInvitation($type = null){
-        $this->belongsTo(ProjectInvitaion::class);
+    public function projectInvitation(){
+        return $this->belongsTo(ProjectInvitaion::class);
+    }
+
+    public function projectInvitationSender(){
+        return $this->hasMany(ProjectInvitaion::class, 'sender');
+    }
+
+    public function projectInvitationReceiver(){
+        return $this->hasMany(ProjectInvitaion::class, 'receiver');
+    }
+
+    public function getProjectInvitation(int $userId){
+       return  $this->projectInvitation()->whereReceiver($userId)->first();
     }
 
     public function userProject(){
         return $this->morphToMany(ProjectUser::class, 'user_id');
     }
+
+    public function taskUser(){
+        return $this->hasMany(TaskUser::class,'user_id');
+    }
+
     public function getToken($type = null): NewAccessToken
     {
         if ($this->email_verified_at) {
@@ -84,7 +102,7 @@ class User extends Authenticatable
     }
 
     public static function findByPasswordAndEmail($email, $password) : User|bool {
-        $user = User::where('email', $email)->where('status', true)->first();
+        $user = User::where('email', $email)->where('status_id', StatusEnum::STATUS_ACTIVE)->first();
         if(!$user || !Hash::check($password,$user->password)){
             return false;
         }

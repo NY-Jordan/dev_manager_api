@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('receiver')->constrained('users')->onDelete('cascade');
             $table->uuid('uuid')->unique();
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
-            $table->integer('status')->default(InvitationStatusEnums::STATUS_PENDING);
+            $table->foreignId('status_id')->constrained('invitation_statuses')->onDelete('cascade');
             $table->timestamps();
         });
     }

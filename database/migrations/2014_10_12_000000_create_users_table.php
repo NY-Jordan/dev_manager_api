@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\StatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
-            $table->boolean('status')->default(false);
+            $table->foreignId('status_id')->default(StatusEnum::STATUS_ACTIVE)->constrained('statuses')->onDelete('cascade');
             $table->string('google_id')->nullable();
             $table->string('github_id')->nullable();
             $table->rememberToken();

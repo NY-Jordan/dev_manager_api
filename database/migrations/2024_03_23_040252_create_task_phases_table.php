@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('task_phases', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('status')->default(StatusEnum::STATUS_ACTIVE);
+            $table->foreignId('status_id')->default(StatusEnum::STATUS_ACTIVE)->constrained('statuses')->onDelete('cascade');
             $table->timestamps();
         });
     }

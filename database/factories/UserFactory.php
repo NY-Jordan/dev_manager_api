@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\StatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -29,8 +30,9 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'status' => 1,
+            'status_id' => StatusEnum::STATUS_ACTIVE,
             'picture' => 'https://img.freepik.com/free-photo/user-profile-icon-front-side_187299-39596.jpg?size=626&ext=jpg&ga=GA1.1.1665549049.1707312326&semt=ais',
+
         ];
     }
 

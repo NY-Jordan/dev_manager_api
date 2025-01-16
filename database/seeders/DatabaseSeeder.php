@@ -13,7 +13,10 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {
+    { $this->call([
+            InvitationStatusSeeder::class,
+            StatusSeeder::class,
+        ]);
          \App\Models\User::factory(1)->create();
 
          \App\Models\Project::factory(2)->create();

@@ -19,7 +19,7 @@ class TaskPhaseFactory extends Factory
     {
         return [
             'name' =>  fake()->name(),
-            'status' => StatusEnum::STATUS_ACTIVE
+            'status_id' => StatusEnum::STATUS_ACTIVE
         ];
     }
 }

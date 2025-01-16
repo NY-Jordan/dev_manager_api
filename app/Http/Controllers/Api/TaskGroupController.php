@@ -10,6 +10,7 @@ use App\Http\Requests\TaskGroup\DetachUserFromTaskGroupRequest;
 use App\Http\Requests\TaskGroup\UpdateTaskGroupNameRequest;
 use App\Http\Requests\TaskGroup\UpdateTaskGroupStatusRequest;
 use App\Http\Resources\Task\TaskGroupResources;
+use App\Http\Resources\TasksGroupsResource;
 use App\Models\Project;
 use App\Models\TaskGroup;
 use App\Service\TaskGroupService;
@@ -32,7 +33,7 @@ class TaskGroupController extends Controller
             abort(403);
         }
         $taskGroup = TaskGroup::create($request->all());
-        return TaskGroupResources::make($taskGroup);
+        return TasksGroupsResource::make($taskGroup);
     }
 
 
@@ -43,7 +44,7 @@ class TaskGroupController extends Controller
             abort(403);
         }
         $taskGroup->setName($request->name);
-        return response()->json(['message' => "operation successfully", 'status' => true], 200);
+        return TasksGroupsResource::make($taskGroup);
     }
 
 
@@ -51,7 +52,7 @@ class TaskGroupController extends Controller
         $taskGroup = TaskGroup::findOrFail($id);
         $project = Project::findOrFail($taskGroup->project_id);
         if ($request->user()->cannot('update', $project)) {
-            abort(403); 
+            abort(403);
         }
         abort_if(is_null(TaskGroupStatusEnum::tryFrom($request->status)), 404, 'status not found');
         $taskGroup->setStatus($request->status);
@@ -60,14 +61,15 @@ class TaskGroupController extends Controller
 
 
     public function delete(Request $request, $id){
-        TaskGroup::findOrFail($id)->delete();
-        return response()->json(['message' => "operation successfully", 'status' => true], 200);
+        $taskGroup   = TaskGroup::findOrFail($id);
+        $taskGroup->delete();
+        return TasksGroupsResource::make($taskGroup);
     }
 
 
     public function getByProject($project_id){
         $tasksGroup = TaskGroup::where('project_id', $project_id)->get();
-        return response()->json(['task_groups' => $tasksGroup, 'status' => true], 200);
+        return response()->json(['task_groups' => TasksGroupsResource::collection(($tasksGroup)), 'status' => true], 200);
     }
 
 
@@ -79,7 +81,7 @@ class TaskGroupController extends Controller
         return response()->json(['message' => "operation successfully", 'status' => true], 200);
     }
 
-    
+
     public function detachUserFromTaskGroup(DetachUserFromTaskGroupRequest $request){
         $project = Project::findOrFail($request->project_id);
         abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($project->id, $request->user_id), 403, ' Action unauthorized');

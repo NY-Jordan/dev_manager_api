@@ -17,7 +17,8 @@ class UserTokenResource extends JsonResource
         $token = $this->getToken();
         return [
             'token' => [
-                'access_token' => $token->plainTextToken
+                'access_token' => $token->plainTextToken,
+                'token'=> $token
             ],
             'user' => UserResource::make($this)
         ];

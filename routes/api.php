@@ -51,10 +51,13 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
   // project root
   Route::group(['prefix' => 'project'], function () {
     Route::get('user', [ProjectController::class, 'getUserProjects'])->name('project.user');
+    Route::get('details/{projectId}', [ProjectController::class, 'details'])->name('project.details');
     Route::post('create', [ProjectController::class, 'create'])->name('project.create');
     Route::post('update/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::delete('delete/{projectId}', [ProjectController::class, 'delete'])->name('project.delete');
     Route::get('search/{projectId}', [ProjectController::class, 'searchUser'])->name('project.searchUser');
+    Route::get('invitations/{projectId}', [ProjectController::class, 'invitations'])->name('project.invitations');
+    Route::get('collaborators/{projectId}', [ProjectController::class, 'getCollaborators'])->name('project.collaborators');
 
 
     // project invitation
@@ -68,6 +71,10 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::get('{uuid}', [ProjectController::class, 'getInvitation'])->name('project.getInvitation');
     });
 
+
+    Route::post('user/remove/{userId}/{projectId}/{invitationId}', [ProjectController::class, 'removeUser'])->name('project.removeUser');
+
+
     // task group
     Route::group(['prefix' => 'taskgroup'], function () {
       Route::get('/{projectId}', [TaskGroupController::class, 'getByProject'])->name('project.getTaskgroup');
@@ -80,11 +87,13 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
     });
 
 
-    // task group
-    Route::group(['prefix' => 'task'], function () {
+    // tasks
+    Route::group(['prefix' => 'tasks'], function () {
+      Route::get('fetch/{projectId}', action: [TaskController::class, 'fetchTasks'])->name('task.fetch');
       Route::post('create', [TaskController::class, 'create'])->name('task.create');
       Route::post('update/{taskId}', [TaskController::class, 'update'])->name('task.update');
       Route::delete('delete/{taskId}', [TaskController::class, 'delete'])->name('task.delete');
+      Route::post('assign/{projectId}', [TaskController::class, 'assignTask'])->name('project.assignTask');
 
       Route::group(['prefix' => 'file'], function () {
         Route::post('create', [TaskController::class, 'attatchFileToTask'])->name('taskFile.create');
@@ -95,7 +104,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
         Route::post('create', [DailyTaskController::class, 'create'])->name('task.daily.create');
         Route::post('update/{id}', [DailyTaskController::class, 'update'])->name('task.daily.update');
         Route::post('update/phase/{id}', [DailyTaskController::class, 'updatePhase'])->name('task.daily.updatePhase');
-        Route::get('/', [DailyTaskController::class, 'fetch'])->name('task.daily.fecth');
+        Route::get('/', action: [DailyTaskController::class, 'fetch'])->name('task.daily.fecth');
       });
 
       Route::get('{id}/file', [TaskController::class, 'getAllFilesTask'])->name('taskFile.getAll');

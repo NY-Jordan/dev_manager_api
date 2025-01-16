@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taskgroup_id')->nullable()->constrained('task_groups')->onDelete('cascade');
+            $table->foreignId('task_group_id')->nullable()->constrained('task_groups');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->string('breifing');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->dateTime('reminder')->nullable();
             $table->foreignId('phase')->constrained('task_phases')->onDelete('cascade');
             $table->foreignId('type')->constrained('task_types')->onDelete('cascade');
-            $table->string('status')->default(StatusEnum::STATUS_ACTIVE);
+            $table->foreignId('status_id')->constrained('statuses')->onDelete('cascade');
             $table->timestamps();
         });
     }

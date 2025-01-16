@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StatusEnum;
 use App\Enums\TaskPhaseEnum;
 use App\Enums\TaskTypeEnum;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ class Task extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'taskgroup_id',
+        'task_group_id',
         'title',
         'breifing',
         'details',
@@ -23,11 +24,16 @@ class Task extends Model
         'reminder',
         'phase',
         'user_id',
-        'type'
+        'type',
+        'status_id'
     ];
 
     public function taskType(){
         return $this->belongsTo(TaskType::class, 'type');
+    }
+
+    public function taskUser(){
+        return $this->hasMany(TaskUser::class, 'task_id');
     }
 
     public function taskPhase(){
@@ -35,6 +41,19 @@ class Task extends Model
     }
     public function taskGroup(){
         return $this->belongsTo(related: TaskGroup::class, );
+    }
+
+    public function getUsersTask() {
+        $taskUsers = TaskUser::where('task_id', $this->id)->get();
+        $result = collect([]);
+        foreach ($taskUsers as $key => $taskUser) {
+            $user = User::find($taskUser->user_id);
+            if ($user) {
+                $result[] = $user;
+            }
+
+        }
+        return $result;
     }
 
     public function createDailyTask(string $title, string $breifing) : Task {
@@ -46,10 +65,13 @@ class Task extends Model
             'breifing' => $breifing,
             'type' => $typeId,
             'phase' =>$phaseId,
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
+            'status_id' => StatusEnum::STATUS_ACTIVE
         ]);
         return $task;
     }
+
+
 
     function fetchDailyTasks(null|string $search = null, null|string $date = null)  :array|Collection  {
         $typeId = TaskType::where('name', TaskTypeEnum::OWN)->first()->id;
@@ -70,8 +92,8 @@ class Task extends Model
         return $builder->get();
     }
 
-    static function titleIsAlreadyUseInTheCurrentGroupTask(string $title, int $taskgroup_id) : bool {
-        $task  = self::where('title', $title)->where('taskgroup_id', $taskgroup_id)->first();
+    static function titleIsAlreadyUseInTheCurrentGroupTask(string $title, int $task_group_id) : bool {
+        $task  = self::where('title', $title)->where('task_group_id', $task_group_id)->first();
         if ($task) {
             return true;
         }
@@ -82,5 +104,17 @@ class Task extends Model
     {
         $this->phase = $phaseId;
         $this->save();
+    }
+
+    function taskBelongsToProject($projectId) : bool {
+        $project =   Project::findOrFail($projectId);
+        if ($this->taskGroup) {
+            $projectFound = $this->taskGroup->project;
+            if ($projectFound->id === $projectId) {
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

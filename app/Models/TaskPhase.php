@@ -17,4 +17,8 @@ class TaskPhase extends Model
         return $this->hasMany(Task::class, );
     }
 
+    static function findByName(string $name): TaskPhase|null  {
+        return self::where('name', $name)->first();
+    }
+
 }

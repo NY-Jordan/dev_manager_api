@@ -26,7 +26,7 @@ class Project extends Model
     ];
 
     public function projectInvitation($type = null){
-        $this->belongsTo(ProjectInvitaion::class);
+       return  $this->hasMany(ProjectInvitaion::class);
     }
 
     public function userProject(){
@@ -50,15 +50,35 @@ class Project extends Model
         return $projectUsers;
     }
 
-    public function getTasks(null|int $projectId = null){
+    public function getInvitations(null|int $projectId = null){
+
+        $project = $this->find(id: $projectId ? $projectId : $this->id);
+        $projectInvitations = $project->projectInvitation;
+        return $projectInvitations;
+    }
+
+    public function getTasks(null|int $projectId = null, null|int $userId = null){
         $project = $this->find($projectId ? $projectId : $this->id);
         $taskGroups = $project->tasksGroup;
         $allTasks = collect();
         foreach ($taskGroups as $taskGroup) {
-            $allTasks = $allTasks->merge($taskGroup->tasks);
+            $tasks = $taskGroup->tasks;
+           if ($userId !== null) {
+                $tasks = $tasks->filter(function ($task) use ($userId) {
+                    if ($task->taskUser) {
+                        foreach ($task->taskUser as $key => $taskUser) {
+                            if ($taskUser->user_id === $userId) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                });
+           }
+            $allTasks = $allTasks->merge($tasks);
         }
 
-        return $allTasks;
+        return $allTasks->sortByDesc('created_at');
     }
 
 
@@ -96,8 +116,5 @@ class Project extends Model
         $is = !empty($user) ? true : false;
         return $is;
     }
-
-
-
 
 }

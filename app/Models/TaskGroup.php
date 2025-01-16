@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPhaseEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,9 +32,18 @@ class TaskGroup extends Model
         $this->save();
     }
 
+
+
     public function setStatus($status)
     {
         $this->status = $status;
         $this->save();
+    }
+
+    function getTasks(TaskPhaseEnum|null  $phase  = null)  {
+        if (!$phase) {
+            return $this->tasks();
+        }
+        return $this->tasks()->where('phase', TaskPhase::findByName($phase->value)?->id);
     }
 }

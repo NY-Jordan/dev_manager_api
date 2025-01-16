@@ -4,10 +4,10 @@ namespace App\Enums\ProjectInvitation;
 
 enum InvitationStatusEnums: int
 {
-    case STATUS_PENDING = 1;
+    case STATUS_PENDING = 4;
     case STATUS_REFUSED = 3;
     case STATUS_ACCEPTED = 2;
-    case STATUS_CANCELED = 0;
+    case STATUS_CANCELED = 1;
 
     static function statusIsPending($status) : bool {
         return InvitationStatusEnums::STATUS_PENDING->value === $status;

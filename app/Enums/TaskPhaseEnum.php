@@ -6,6 +6,6 @@ enum TaskPhaseEnum: string
 {
     case BACKLOG = 'Backlog';
     case STARTED = 'Started';
-    case IN_PROGRESS = 'In Progress';
+    case IN_REVIEW = 'In Review';
     case DONE = 'Done';
 }

@@ -26,10 +26,10 @@ class TaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'taskgroup_id' => 'integer|required',
+            'task_group_id' => 'integer|required',
             'title' => 'string|required',
             'breifing' => 'string|required',
-            'details' => 'string|required',
+            'details' => 'string|nullable',
             'reminder' => 'date'
         ];
     }

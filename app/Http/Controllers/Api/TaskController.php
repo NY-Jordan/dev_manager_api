@@ -6,8 +6,6 @@ use App\Enums\StatusEnum;
 use App\Enums\TaskPhaseEnum;
 use App\Enums\TaskTypeEnum;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateDailyTaskRequest;
-use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\Task\assignTaskRequest;
 use App\Http\Requests\Task\TaskFileRequest;
 use App\Http\Requests\Task\TaskRequest;
@@ -25,36 +23,66 @@ use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    const ITEMS_PER_PAGE = 10;
+    const DEFAULT_PAGE = 1;
     public function __construct(private TaskService $taskService ){}
-    public function fetchTasks(Request $request, $projectId)  {
+    public function fetchTasks(Request $request, $projectId) {
         $project  = Project::findOrFail($projectId);
-        $collaboratorId = $request->user_id ? intval($request->user_id) : null;
-        $tasks = $project->getTasks(userId :$collaboratorId)->forPage(1, 6);
-        return response()->json(['message' => "operation successfully", 'tasks' => TaskResource::collection($tasks),'status' => true], 200);
+
+        // filter parameters
+        $collaboratorId = isset($request->user_id) && is_numeric($request->user_id) ? intval($request->user_id) : null;
+        $taskGroupId = isset($request->task_group_id) && is_numeric($request->task_group_id) ? intval($request->task_group_id) : null;
+        $phaseId = isset($request->phase_id) && is_numeric($request->phase_id) ? intval($request->phase_id) : null;
+
+        // paginations parametser
+        $page = $request->get('page', self::DEFAULT_PAGE);
+        $perPage = $request->get('per_page', self::ITEMS_PER_PAGE);
+
+        $tasks = $this->taskService->fetchTasks(
+            projectId : $project->id,
+            userId : $collaboratorId,
+            phaseId : $phaseId,
+            taskGroupId : $taskGroupId
+        );
+
+        $paginatedTasks = $tasks->forPage($page, $perPage);
+
+        $totalItems = $tasks->count();
+        $totalPages = ceil($totalItems / $perPage);
+
+        return response()->json([
+            'tasks' => TaskResource::collection($paginatedTasks),
+            'pagination' => [
+                'current_page' => intVal($page),
+                'total_pages' => $totalPages,
+                'total_items' => $totalItems,
+                'per_page' => $perPage
+            ],
+            'status' => true
+        ], 200);
     }
+
 
 
     public function create(TaskRequest $request)  {
         abort_if(!TaskGroup::find($request->task_group_id), 404, 'task group not found');
         abort_if(Task::titleIsAlreadyUseInTheCurrentGroupTask($request->title,$request->task_group_id), 422, 'Title already use in this Task Group');
-        $typeId = TaskType::where('name', TaskTypeEnum::ASSIGN)->first()->id;
-        $data = $request->all();
-        $data['phase'] = TaskPhase::where('name', TaskPhaseEnum::BACKLOG)->first()->id;
-        $data['user_id'] = Auth::id();
-        $data['type'] = $typeId;
-        $data['status_id'] = StatusEnum::STATUS_ACTIVE;
-        $task = Task::create($data);
-        return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 201);
-    }
+        $task  = $this->taskService->createTask($request->all());
+        return response()->json([
+            'message' => "Operation successfully",
+            'task' => TaskResource::make($task),
+            'status' => true
+        ], 200);    }
 
 
     public function update(UpdateTaskRequest $request, $id)  {
         if ($request->title) {
-            abort_if(Task::titleIsAlreadyUseInTheCurrentGroupTask($request->title,$request->taskgroup_id), 422, 'Title already use in this Task Group');
+            abort_if(Task::titleIsAlreadyUseInTheCurrentGroupTask($request->title,(int)$request->taskgroup_id), 422, 'Title already use in this Task Group');
         }
         $task  = Task::findOrFail($id);
         $task->update($request->all());
-        return response()->json(['message' => "operation successfully", 'status' => true], 200);
+        $task->refresh();
+        return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 200);
     }
 
     public function delete(Request $request, $id)  {

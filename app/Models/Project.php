@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPhaseEnum;
 use DateTime;
 use Faker\Core\File;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
@@ -57,29 +59,18 @@ class Project extends Model
         return $projectInvitations;
     }
 
-    public function getTasks(null|int $projectId = null, null|int $userId = null){
+    public function fetchTasks(null|int $projectId = null, null|int $userId = null, int|null $taskGroupId = null, int|null $pahseId = null){
         $project = $this->find($projectId ? $projectId : $this->id);
         $taskGroups = $project->tasksGroup;
         $allTasks = collect();
         foreach ($taskGroups as $taskGroup) {
             $tasks = $taskGroup->tasks;
-           if ($userId !== null) {
-                $tasks = $tasks->filter(function ($task) use ($userId) {
-                    if ($task->taskUser) {
-                        foreach ($task->taskUser as $key => $taskUser) {
-                            if ($taskUser->user_id === $userId) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                });
-           }
             $allTasks = $allTasks->merge($tasks);
         }
-
-        return $allTasks->sortByDesc('created_at');
+        return $allTasks->sortBy('created_at');
     }
+
+
 
 
     public function getProjectOfUser($id = null, $user_id = null){

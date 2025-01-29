@@ -24,12 +24,11 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'taskgroup_id' => 'integer|required',
+            'task_group_id' => 'integer|required',
             'title' => 'string',
             'breifing' => 'string',
-            'details' => 'string',
-            'reminder' => 'date',
-            'phase' => 'integer'
+            'details' => 'string|nullable',
+            'phase' => 'integer|nullable'
         ];
     }
 

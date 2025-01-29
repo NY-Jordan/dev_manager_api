@@ -22,7 +22,7 @@ class ProjectRessource extends JsonResource
             "user_id" => $this->resource->user_id,
             "collaborators" => $this->resource->getCollaborators()->count(),
             'is_admin' => $this->resource->isTheAdministrator(),
-            'tasks' => $this->resource->getTasks()->count(),
+            'tasks' => $this->resource->fetchTasks()->count(),
             "delivery_at" => $this->resource->delivery_at,
             "created_at" => $this->resource->created_at,
             "updated_at" => $this->resource->updated_at,

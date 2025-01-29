@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Auth;
 
 class TaskGroupController extends Controller
 {
+    const ITEMS_PER_PAGE = 5;
+
     public function __construct(
         private TaskGroupService $taskGroupService,
         private UserService $userService
@@ -32,8 +34,20 @@ class TaskGroupController extends Controller
         if ($request->user()->cannot('create', $project)) {
             abort(403);
         }
-        $taskGroup = TaskGroup::create($request->all());
-        return TasksGroupsResource::make($taskGroup);
+
+        TaskGroup::create($request->all());
+        $tasksGroup = TaskGroup::where('project_id', $project->id)->paginate(SELF::ITEMS_PER_PAGE);
+
+        return  response()->json(
+            [
+                'task_groups' => TasksGroupsResource::collection(($tasksGroup)),
+                'pagination' => [
+                    'total_pages' =>  $tasksGroup->lastPage(),
+                    'total_items' => $tasksGroup->total(),
+                    'current_page' => $tasksGroup->currentPage()
+                ],
+                'status' => true
+            ], 200);
     }
 
 
@@ -67,9 +81,18 @@ class TaskGroupController extends Controller
     }
 
 
-    public function getByProject($project_id){
-        $tasksGroup = TaskGroup::where('project_id', $project_id)->get();
-        return response()->json(['task_groups' => TasksGroupsResource::collection(($tasksGroup)), 'status' => true], 200);
+    public function getByProject(Request $request, $project_id){
+        $tasksGroup = TaskGroup::where('project_id', $project_id)->paginate(SELF::ITEMS_PER_PAGE);
+        return response()->json(
+            [
+                'task_groups' => TasksGroupsResource::collection(($tasksGroup)),
+                'pagination' => [
+                    'total_pages' =>  $tasksGroup->lastPage(),
+                    'total_items' => $tasksGroup->total(),
+                    'current_page' => $tasksGroup->currentPage()
+                ],
+                'status' => true
+            ], 200);
     }
 
 

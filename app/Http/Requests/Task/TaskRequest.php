@@ -30,7 +30,10 @@ class TaskRequest extends FormRequest
             'title' => 'string|required',
             'breifing' => 'string|required',
             'details' => 'string|nullable',
-            'reminder' => 'date'
+            'reminder' => 'date',
+            'filters.user_id' => 'nullable|integer|exists:users,id',
+            'filters.phase_id' => 'nullable|string|exists:task_phases,id',
+            'filters.task_group_id' => 'nullable|integer|exists:task_group_id,id',
         ];
     }
 

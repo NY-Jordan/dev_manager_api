@@ -63,6 +63,7 @@ class ProjectController extends Controller
     {
         $logo = $request->file('logo');
         $project = $project->createNewProject($request->name, $logo);
+        ProjectUser::create(['project_id' => $project->id, 'user_id' => auth()->id()]);
         return response()->json(['message' => "project created successfully", 'status' => true], 200);
     }
 
@@ -168,5 +169,5 @@ class ProjectController extends Controller
     }
 
 
-   
+
 }

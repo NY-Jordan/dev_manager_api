@@ -14,6 +14,7 @@ use App\Models\Task;
 use App\Models\TaskPhase;
 use App\Models\TaskType;
 use App\Models\TaskUser;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,8 @@ class TaskService {
         foreach ($users as $key => $user) {
             TaskUser::create([
                 'task_id' => $task->id,
-                'user_id' => $user
+                'user_id' => $user,
+                'schedule_at' => now()
             ]);
         }
     }
@@ -94,6 +96,18 @@ class TaskService {
             return false;
         });
     }
+
+    public function rescheduleUserTask(string $date, int $taskId) {
+        $usersTasks = TaskUser::where('task_id', $taskId)->get(); // Collection
+
+        foreach ($usersTasks as $task) {
+            $task->schedule_at =  new Carbon($date);
+            $task->save();
+        }
+
+        return $usersTasks;
+    }
+
 }
 
 

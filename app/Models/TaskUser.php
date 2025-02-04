@@ -10,7 +10,8 @@ class TaskUser extends Model
     use HasFactory;
     protected $fillable = [
         'task_id',
-        'user_id'
+        'user_id',
+        'schedule_at'
     ];
 
     public function task(){
@@ -21,5 +22,5 @@ class TaskUser extends Model
         return $this->belongsTo(User::class);
     }
 
-  
+
 }

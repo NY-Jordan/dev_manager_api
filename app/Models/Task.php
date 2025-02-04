@@ -49,6 +49,7 @@ class Task extends Model
         foreach ($taskUsers as $key => $taskUser) {
             $user = User::find($taskUser->user_id);
             if ($user) {
+                $user->schedule_at = $taskUser->schedule_at;
                 $result[] = $user;
             }
 

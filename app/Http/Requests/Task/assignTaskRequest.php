@@ -26,7 +26,7 @@ class assignTaskRequest extends FormRequest
     {
         return [
             'task_id' => 'integer|required',
-            'users' => ['required', 'array'],
+            'users' => ['sometimes', 'array'],
             'users.*' => ['integer'],
         ];
     }

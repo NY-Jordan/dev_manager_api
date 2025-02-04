@@ -6,6 +6,7 @@ use App\Enums\StatusEnum;
 use App\Enums\TaskPhaseEnum;
 use App\Enums\TaskTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\rescheduleUsersTaskRequest;
 use App\Http\Requests\Task\assignTaskRequest;
 use App\Http\Requests\Task\TaskFileRequest;
 use App\Http\Requests\Task\TaskRequest;
@@ -17,6 +18,7 @@ use App\Models\TaskFile;
 use App\Models\TaskGroup;
 use App\Models\TaskPhase;
 use App\Models\TaskType;
+use App\Models\User;
 use App\Service\TaskService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -75,6 +77,18 @@ class TaskController extends Controller
         ], 200);    }
 
 
+    function fetchCollaboratorTasks(int $projectId, int $userId)   {
+        abort_if(!Project::find($projectId), 404, 'project not found');
+        abort_if(!User::find($userId), 404, 'user not found');
+        $tasks = $this->taskService->fetchTasks(projectId : $projectId, userId : $userId)
+        ->groupBy(fn($task) => $task->taskPhase->name);
+
+        return response()->json([
+            'status' => true,
+            'tasks' => $tasks,
+        ], 200);
+
+    }
     public function update(UpdateTaskRequest $request, $id)  {
         if ($request->title) {
             abort_if(Task::titleIsAlreadyUseInTheCurrentGroupTask($request->title,(int)$request->taskgroup_id), 422, 'Title already use in this Task Group');
@@ -123,6 +137,18 @@ class TaskController extends Controller
         $task = Task::findOrFail($request->task_id);
         abort_if(!$task->taskBelongsToProject($project->id), 403, 'Task not found in this project');
         $this->taskService->assignTask( $task, $request->users);
+        $task->refresh();
+        return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 200);
+    }
+
+
+    public function rescheduleUsersTask(rescheduleUsersTaskRequest $request, $projectId, $taskId)  {
+        $project = Project::findOrFail($projectId);
+        $task = Task::findOrFail($taskId);
+        abort_if(!$project->isTheAdministrator(Auth::id(), $project->id), 403, 'You are not authorized');
+        abort_if(!$task->taskBelongsToProject($project->id), 403, 'Task not found in this project');
+        $date  = strval($request->date);
+        $this->taskService->rescheduleUserTask( $date, $taskId);
         $task->refresh();
         return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 200);
     }

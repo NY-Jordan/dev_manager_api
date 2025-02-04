@@ -90,6 +90,8 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
     // tasks
     Route::group(['prefix' => 'tasks'], function () {
       Route::get('fetch/{projectId}', action: [TaskController::class, 'fetchTasks'])->name('task.fetch');
+      Route::get('fetch/{projectId}/{userId}', action: [TaskController::class, 'fetchCollaboratorTasks'])->name('task.user.fetch');
+      Route::post('reschedule/{projectId}/{taskId}', action: [TaskController::class, 'rescheduleUsersTask'])->name('task.user.reschedule');
       Route::post('create', [TaskController::class, 'create'])->name('task.create');
       Route::post('update/{taskId}', [TaskController::class, 'update'])->name('task.update');
       Route::delete('delete/{taskId}', [TaskController::class, 'delete'])->name('task.delete');

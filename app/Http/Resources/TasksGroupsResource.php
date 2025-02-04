@@ -19,7 +19,7 @@ class TasksGroupsResource extends JsonResource
             "id" => $this->resource->id,
             "name" => $this->resource->name,
             "status" => $this->resource->status,
-            'backlog' => $this->resource->getTasks()->count(),
+            'backlog' => $this->resource->getTasks(TaskPhaseEnum::BACKLOG)->count(),
             'started' => $this->resource->getTasks(TaskPhaseEnum::STARTED)->count(),
             'in_review' => $this->resource->getTasks(TaskPhaseEnum::IN_REVIEW)->count(),
             'done' => $this->resource->getTasks(TaskPhaseEnum::DONE)->count(),

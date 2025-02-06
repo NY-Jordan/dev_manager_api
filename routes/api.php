@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AppController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\Auth\GithubAuth2Controller;
@@ -47,6 +48,10 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
   Route::get('logout', [AuthController::class, 'logout']);
   Route::get('user/{id}', [AuthController::class, 'user']);
   Route::get('notifications', [NotificationController::class, 'show']);
+
+  Route::get('/stats', [AppController::class, 'fetchStats']);
+  Route::get('/collaborators', [AppController::class, 'fetchCollaborators']);
+  Route::get('/activities', [AppController::class, 'fetchActivities']);
 
   // project root
   Route::group(['prefix' => 'project'], function () {
@@ -106,6 +111,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
         Route::post('create', [DailyTaskController::class, 'create'])->name('task.daily.create');
         Route::post('update/{id}', [DailyTaskController::class, 'update'])->name('task.daily.update');
         Route::post('update/phase/{id}', [DailyTaskController::class, 'updatePhase'])->name('task.daily.updatePhase');
+        Route::post('reschedule/{taskId}', [DailyTaskController::class, 'rescheduleDailyTask'])->name('task.daily.rescheduleDailyTask');
         Route::get('/', action: [DailyTaskController::class, 'fetch'])->name('task.daily.fecth');
       });
 

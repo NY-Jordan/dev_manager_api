@@ -108,6 +108,15 @@ class TaskService {
         return $usersTasks;
     }
 
+    public function rescheduleDailyTask(string $date, int $taskId) {
+        $task = Task::findOrFail($taskId); // Collection
+        $task->created_at = new Carbon($date);;
+        $task->updated_at = new Carbon($date);;
+        $task->save();
+
+        return $task->refresh();
+    }
+
 }
 
 

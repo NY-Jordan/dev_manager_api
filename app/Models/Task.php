@@ -32,6 +32,9 @@ class Task extends Model
         return $this->belongsTo(TaskType::class, 'type');
     }
 
+    public function ticket(){
+        return $this->belongsTo(Ticket::class);
+    }
     public function taskUser(){
         return $this->hasMany(TaskUser::class, 'task_id');
     }

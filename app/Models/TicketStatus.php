@@ -12,4 +12,7 @@ class TicketStatus extends Model
     protected $fillable = [
         'name',
     ];
+    public function ticket(){
+        return $this->hasMany(Ticket::class, );
+    }
 }

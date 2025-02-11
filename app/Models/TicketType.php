@@ -12,4 +12,7 @@ class TicketType extends Model
         'name',
     ];
 
+    public function ticket(){
+        return $this->hasMany(Ticket::class, );
+    }
 }

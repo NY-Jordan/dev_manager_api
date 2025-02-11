@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TaskGroupController;
 use App\Http\Controllers\Api\DailyTaskController;
+use App\Http\Controllers\Api\TicketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -105,6 +106,11 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::group(['prefix' => 'file'], function () {
         Route::post('create', [TaskController::class, 'attatchFileToTask'])->name('taskFile.create');
         Route::post('update/{id}', [TaskController::class, 'updateFileTask'])->name('taskFile.update');
+      });
+
+      Route::group(['prefix' => 'ticket'], function () {
+        Route::post('create', [TicketController::class, 'create'])->name('task.ticket.create');
+        Route::get('fetch/{taskId}', [TicketController::class, 'fetch'])->name('task.ticket.fetch');
       });
 
       Route::group(['prefix' => 'daily'], function () {

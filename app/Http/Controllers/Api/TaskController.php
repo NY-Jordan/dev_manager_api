@@ -153,6 +153,6 @@ class TaskController extends Controller
         return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 200);
     }
 
-   
+
 
 }

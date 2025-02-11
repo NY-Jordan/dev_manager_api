@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Task;
+namespace App\Http\Requests\Ticket;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateTaskRequest extends FormRequest
+class UpdateTicketRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,16 +24,11 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'task_group_id' => 'integer|required',
-            'title' => 'string',
-            'breifing' => 'string', 
-            'details' => 'string|nullable',
-            'phase' => 'integer|nullable'
+            //
         ];
     }
 
-
-     /**
+         /**
      * Handle a failed validation attempt.
      *
      * @param  \Illuminate\Contracts\Validation\Validator  $validator

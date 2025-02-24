@@ -111,6 +111,8 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::group(['prefix' => 'ticket'], function () {
         Route::post('create', [TicketController::class, 'create'])->name('task.ticket.create');
         Route::get('fetch/{taskId}', [TicketController::class, 'fetch'])->name('task.ticket.fetch');
+        Route::post('status/update/{taskId}', [TicketController::class, 'changeStatus'])->name('task.ticket.status');
+        Route::delete('delete/{taskId}', [TicketController::class, 'delete'])->name('task.ticket.delete');
       });
 
       Route::group(['prefix' => 'daily'], function () {

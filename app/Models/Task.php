@@ -33,7 +33,7 @@ class Task extends Model
     }
 
     public function ticket(){
-        return $this->belongsTo(Ticket::class);
+        return $this->hasOne(Ticket::class, 'task_id');
     }
     public function taskUser(){
         return $this->hasMany(TaskUser::class, 'task_id');

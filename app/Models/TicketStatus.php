@@ -15,4 +15,8 @@ class TicketStatus extends Model
     public function ticket(){
         return $this->hasMany(Ticket::class, );
     }
+
+    static function findByName(string $name)  {
+        return self::whereName($name)->first();
+    }
 }

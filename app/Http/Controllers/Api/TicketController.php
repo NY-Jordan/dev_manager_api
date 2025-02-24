@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\TicketStatusEnum;
+use App\Enums\TicketTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Ticket\ChangeTicketStatusRequest;
 use App\Http\Requests\Ticket\CreateTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Resources\TicketResource;
@@ -14,6 +16,7 @@ use App\Models\TicketStatus;
 use App\Models\TicketType;
 use App\Service\UserService;
 use Illuminate\Http\Request;
+use Mockery\Undefined;
 
 class TicketController extends Controller
 {
@@ -27,7 +30,7 @@ class TicketController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'task_id' => $task->id,
-            'ticket_type_id' => $task->ticket_type_id,
+            'ticket_type_id' => $request->ticket_type_id,
             'ticket_status_id' => TicketStatus::whereName(TicketStatusEnum::IN_PROGRESS)->first()->id,
         ]);
         return response()->json([
@@ -51,7 +54,13 @@ class TicketController extends Controller
     function fetch(Request $request, $taskId)  {
         $task = Task::find(id: $taskId);
         abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($task->taskGroup->project->id, auth()->id()), 403, 'Action unauthorized');
-        $tickets = Ticket::where('task_id', $taskId)->get();
+        $query = Ticket::where('task_id', $taskId)
+        ->where('ticket_status_id', TicketStatus::findByName($request->status)->id);
+        if (TicketTypeEnum::tryFrom($request->type) !== null) {
+            $query = $query->where('ticket_type_id', TicketType::findByName($request->type)->id);
+        }
+        $tickets = $query->get()
+        ->sortByDesc('created_at');
         return response()->json([
             'status' => true,
             'tickets' => TicketResource::collection($tickets),
@@ -62,6 +71,20 @@ class TicketController extends Controller
         $ticket = Ticket::findOrFail($ticketId);
         abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($ticket->task->taskGroup->project->id, auth()->id()), 403, 'Action unauthorized');
         $ticket->update($request->all())->save();
+        $ticket->refresh();
+        return response()->json([
+            'status' => true,
+            'ticket' => TicketResource::make($ticket),
+        ], 200);
+    }
+
+
+    function changeStatus(ChangeTicketStatusRequest $request, $ticketId)  {
+        $ticket = Ticket::findOrFail($ticketId);
+        abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($ticket->task->taskGroup->project->id, auth()->id()), 403, 'Action unauthorized');
+        $ticket->update([
+            'ticket_status_id' => TicketStatus::findByName($request->status)->id
+        ]);
         $ticket->refresh();
         return response()->json([
             'status' => true,

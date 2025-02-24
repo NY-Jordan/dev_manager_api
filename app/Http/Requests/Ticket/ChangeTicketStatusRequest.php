@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateTicketRequest extends FormRequest
+class ChangeTicketStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,18 +16,10 @@ class CreateTicketRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'title' => 'string|required',
-            'description' => 'string|required',
-            'task_id' => 'required|integer',
-            'ticket_type_id' => 'required|integer|exists:ticket_types,id',
+            'status' => 'string|required|exists:ticket_statuses,name',
         ];
     }
 

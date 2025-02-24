@@ -15,4 +15,8 @@ class TicketType extends Model
     public function ticket(){
         return $this->hasMany(Ticket::class, );
     }
+
+    static function findByName(string $title)  {
+        return self::whereName($title)->first();
+    }
 }

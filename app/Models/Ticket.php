@@ -21,7 +21,7 @@ class Ticket extends Model
     }
 
     public function task(){
-        return $this->hasOne(Task::class, 'task_id');
+        return $this->belongsTo(Task::class);
     }
 
     public function ticketStatus(){

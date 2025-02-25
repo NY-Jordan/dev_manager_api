@@ -10,6 +10,7 @@ use App\Http\Requests\rescheduleUsersTaskRequest;
 use App\Http\Requests\Task\assignTaskRequest;
 use App\Http\Requests\Task\TaskFileRequest;
 use App\Http\Requests\Task\TaskRequest;
+use App\Http\Requests\Task\UpdateTaskPhaseRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Project;
@@ -20,6 +21,9 @@ use App\Models\TaskPhase;
 use App\Models\TaskType;
 use App\Models\User;
 use App\Service\TaskService;
+use App\Service\UserService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +31,12 @@ class TaskController extends Controller
 {
     const ITEMS_PER_PAGE = 10;
     const DEFAULT_PAGE = 1;
-    public function __construct(private TaskService $taskService ){}
+
+
+    public function __construct(
+        private TaskService $taskService,
+        private UserService $userService
+        ){}
     public function fetchTasks(Request $request, $projectId) {
         $project  = Project::findOrFail($projectId);
 
@@ -77,10 +86,11 @@ class TaskController extends Controller
         ], 200);    }
 
 
-    function fetchCollaboratorTasks(int $projectId, int $userId)   {
+    function fetchCollaboratorTasks(Request $request, int $projectId, int $userId): JsonResponse   {
         abort_if(!Project::find($projectId), 404, 'project not found');
         abort_if(!User::find($userId), 404, 'user not found');
-        $tasks = $this->taskService->fetchTasks(projectId : $projectId, userId : $userId)
+        $assingedDate = $request->assined_date  ?? (new Carbon())->toDateString();
+        $tasks = $this->taskService->fetchTasks(projectId : $projectId, userId : $userId, assignedDate: $assingedDate)
         ->groupBy(fn($task) => $task->taskPhase->name);
 
         return response()->json([
@@ -98,6 +108,18 @@ class TaskController extends Controller
         $task->refresh();
         return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 200);
     }
+
+    public function updatePhase(UpdateTaskPhaseRequest $request, $taskId)  {
+        $task  = Task::findOrFail($taskId);
+        abort_if(!$this->userService->isAdministratorOrCollaboratorOfTheProject($task->taskGroup->project->id, auth()->id()), 403, 'Action unauthorized');
+
+        $task->update([
+            'phase' => TaskPhase::findByName($request->phase)->id,
+        ]);
+        $task->refresh();
+        return response()->json(['message' => "operation successfully", 'task' => TaskResource::make($task),'status' => true], 200);
+    }
+
 
     public function delete(Request $request, $id)  {
         $task  = Task::findOrFail($id);

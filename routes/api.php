@@ -102,6 +102,7 @@ Route::group(['middleware' => 'auth:sanctum', 'ability:*'], function() {
       Route::post('update/{taskId}', [TaskController::class, 'update'])->name('task.update');
       Route::delete('delete/{taskId}', [TaskController::class, 'delete'])->name('task.delete');
       Route::post('assign/{projectId}', [TaskController::class, 'assignTask'])->name('project.assignTask');
+      Route::post('update/phase/{taskId}', [TaskController::class, 'updatePhase'])->name('project.updatePhase');
 
       Route::group(['prefix' => 'file'], function () {
         Route::post('create', [TaskController::class, 'attatchFileToTask'])->name('taskFile.create');

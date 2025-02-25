@@ -26,7 +26,7 @@ class TaskResource extends JsonResource
             'breifing' => $this->breifing,
             'details' => $this->details,
             'reminder' => $this->reminder,
-            'phase' =>TaskPhaseRessource::make($this->resource->taskPhase),
+            'task_phase' =>TaskPhaseRessource::make($this->resource->taskPhase),
             'type' => TaskTypeRessource::make($this->resource->taskType),
             'status' => $this->status,
             'created_at' => $this->created_at,

@@ -89,8 +89,9 @@ class TaskController extends Controller
     function fetchCollaboratorTasks(Request $request, int $projectId, int $userId): JsonResponse   {
         abort_if(!Project::find($projectId), 404, 'project not found');
         abort_if(!User::find($userId), 404, 'user not found');
-        $assingedDate = $request->assined_date  ?? (new Carbon())->toDateString();
-        $tasks = $this->taskService->fetchTasks(projectId : $projectId, userId : $userId, assignedDate: $assingedDate)
+        $assingedDate = $request->assigned_date  ?? (new Carbon())->toDateString();
+        $keysWord = $request->keys_word  ?? null;
+        $tasks = $this->taskService->fetchTasks(projectId : $projectId, userId : $userId, assignedDate: $assingedDate, keysWord: $keysWord)
         ->groupBy(fn($task) => $task->taskPhase->name);
 
         return response()->json([

@@ -50,7 +50,7 @@ class TaskService {
         return $task;
     }
 
-    public function fetchTasks(int $projectId , null|int $userId = null, int|null $taskGroupId = null, int|null $phaseId = null, string|null $assignedDate = null ){
+    public function fetchTasks(int $projectId , null|int $userId = null, int|null $taskGroupId = null, int|null $phaseId = null, string|null $assignedDate = null, string|null $keysWord = null ){
         $project = Project::find($projectId);
         $taskGroups = $project->tasksGroup;
         // filter by task group
@@ -72,9 +72,14 @@ class TaskService {
             if ($assignedDate !== null) {
                 $tasks = $tasks->filter(function ($task) use ($assignedDate): mixed{
                     return (new Carbon($task->taskUser->first()->schedule_at))->day === (new Carbon($assignedDate))->day;
-                })->all();
+                });
             }
-
+            if ($keysWord !== null) {
+                $tasks = $tasks->filter(function ($task) use ($keysWord) {
+                    return stripos($task->title, $keysWord) !== false || stripos($task->breifing, $keysWord) !== false
+                     || stripos($task->details, $keysWord) !== false;
+                });
+            }
             $allTasks = $allTasks->merge($tasks);
         }
 
